@@ -1,9 +1,19 @@
 // Create the canvas
-var canvas = document.createElement("canvas");
-var ctx = canvas.getContext("2d");
-canvas.width = 288;
-canvas.height = 512;
-document.body.appendChild(canvas);
+
+// var canvas = document.createElement("canvas");
+// var ctx = canvas.getContext("2d");
+
+var canvas = document.getElementById("game-canvas"),
+ctx = canvas.getContext("2d");
+
+// ctx.fillRect(160, 240, 20,20);
+
+// canvas.width = 550;
+// canvas.height = 350;
+
+// document.body.appendChild(canvas);
+// cont = document.getElementById("container");
+// cont.appendChild(canvas);
 
 // Background image
 var bgReady = false;
@@ -11,7 +21,15 @@ var bgImage = new Image();
 bgImage.onload = function () {
 	bgReady = true;
 };
-bgImage.src = "images/background.png";
+bgImage.src = "images/background_flat.png";
+
+var bgTerrain = new Image();
+bgTerrain.onload = function () {
+	bgReady = true;
+};
+bgTerrain.src = "images/terrain.png";
+
+
 
 // Hero image
 var heroReady = false;
@@ -19,7 +37,7 @@ var heroImage = new Image();
 heroImage.onload = function () {
 	heroReady = true;
 };
-heroImage.src = "images/hero2.png";
+heroImage.src = "images/flappy.png";
 
 // Monster image
 var monsterReady = false;
@@ -27,7 +45,7 @@ var monsterImage = new Image();
 monsterImage.onload = function () {
 	monsterReady = true;
 };
-monsterImage.src = "images/monster.png";
+monsterImage.src = "images/flappy2.png";
 
 // Game objects
 var hero = {
@@ -59,6 +77,7 @@ var reset = function () {
 
 // Update game objects
 var update = function (modifier) {
+
 	if (38 in keysDown) { // Player holding up
 		hero.y -= hero.speed * modifier;
 	}
@@ -82,12 +101,31 @@ var update = function (modifier) {
 		++monstersCaught;
 		reset();
 	}
+
+	// check collisions with scenario
+
+	// left
+	if (hero.x < 0)
+		hero.x = 0;
+
+	// top
+	if (hero.y < 0)
+		hero.y = 0;
+
+	// bottom
+	if (hero.y > canvas.height - bgTerrain.height - heroImage.height)
+		hero.y = canvas.height - bgTerrain.height - heroImage.height;
+
+	// right
+	if (hero.x > canvas.width - heroImage.width)
+		hero.x = canvas.width - heroImage.width;
 };
 
 // Draw everything
 var render = function () {
 	if (bgReady) {
 		ctx.drawImage(bgImage, 0, 0);
+		ctx.drawImage(bgTerrain, 0, canvas.height - bgTerrain.height);
 	}
 
 	if (heroReady) {
@@ -100,10 +138,11 @@ var render = function () {
 
 	// Score
 	ctx.fillStyle = "rgb(250, 250, 250)";
-	ctx.font = "24px Helvetica";
+	// ctx.fillStyle = "yellow";
+	ctx.font = "24px flappy-font";
 	ctx.textAlign = "left";
 	ctx.textBaseline = "top";
-	ctx.fillText("Score: " + monstersCaught, 32, 32);
+	ctx.fillText("SCORE " + monstersCaught, 32, 32);
 };
 
 // The main game loop
