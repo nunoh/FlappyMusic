@@ -1,8 +1,8 @@
 var game = new Game();
 
-
 spacePressed=false;
 gravity=2;
+
 document.addEventListener('keydown', function (e) {
     if (e.keyCode == 32) {
 		console.log(e.keyCode);
@@ -47,8 +47,6 @@ var imageRepository = new function() {
 	this.bird.src="images/flappy2.png";
 
 }();
-
-
 
 
 function Drawable() {
@@ -160,6 +158,18 @@ function Line(){
 	};
 }
 
+
+function detectCollision(){
+	collision=false;
+	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
+		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
+		console.log("BOOM");
+		collision=true;
+	}
+return collision;
+}
+
+
 Background.prototype = new Drawable();
 Ground.prototype=new Drawable();
 Bird.prototype=new Drawable();
@@ -205,7 +215,7 @@ function Game() {
 			this.bird.init(100,100,imageRepository.bird.width,imageRepository.bird.height);
 
 			this.line=new Line();
-			this.line.init(this.lineCanvas.width,0,0,0);
+			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
 
 			return true;
 		} else {
@@ -224,8 +234,8 @@ function animate() {
 	game.background.draw();
 	game.terrain.draw();
 	game.line.draw();
-
 	game.bird.draw();
+	detectCollision();
 	// game.line.init(game.line.width,0);
 
 }
