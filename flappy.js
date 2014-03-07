@@ -14,8 +14,9 @@ document.addEventListener('keydown', function (e) {
 
 function init() {
 	if(game.init())
-		game.start();
 		initAudio();
+		game.start();
+
 }
 
 //---- SOUND -----//
@@ -26,7 +27,9 @@ function initAudio() {
   bufferLoader = new BufferLoader(
     context,
     [
-      'sounds/note1.mp3', //each sound is a position of this buffers array so it can be easily randomized when setting up the "pipes"
+		'sounds/note1.mp3', //each sound is a position of this buffers array so it can be easily randomized and paired with the gap
+		'sounds/note2.mp3',
+		'sounds/note3.mp3',
     ],
     finishedLoading
     );
@@ -49,7 +52,10 @@ function playSound(bufferPos) {
 
 function soundTimer(){
 	if(game.line.x==game.line.canvasWidth){
-		playSound(0);
+
+		sound=Math.floor((Math.random()*3));
+		console.log(sound);
+		playSound(sound);
 
 	}
 
