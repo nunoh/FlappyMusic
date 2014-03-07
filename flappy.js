@@ -1,7 +1,9 @@
 var game = new Game();
 
-spacePressed=false;
-gravity=2;
+var spacePressed=false;
+window.onload = initAudio;
+var context;
+var bufferLoader;
 
 document.addEventListener('keydown', function (e) {
     if (e.keyCode == 32) {
@@ -13,7 +15,48 @@ document.addEventListener('keydown', function (e) {
 function init() {
 	if(game.init())
 		game.start();
+		initAudio();
 }
+
+//---- SOUND -----//
+
+function initAudio() {
+  window.AudioContext = window.AudioContext || window.webkitAudioContext;
+  context = new AudioContext();
+  bufferLoader = new BufferLoader(
+    context,
+    [
+      'sounds/note1.mp3', //each sound is a position of this buffers array so it can be easily randomized when setting up the "pipes"
+    ],
+    finishedLoading
+    );
+
+  bufferLoader.load();
+}
+
+function finishedLoading(bufferList) {
+return;
+}
+
+function playSound(bufferPos) {
+
+	var source = context.createBufferSource();
+	source.buffer = bufferLoader.bufferList[bufferPos];
+	source.connect(context.destination);
+	source.start(0);
+                                           
+}
+
+function soundTimer(){
+	if(game.line.x==game.line.canvasWidth){
+		playSound(0);
+
+	}
+
+}
+
+
+//---IMAGES--------//
 
 var imageRepository = new function() {
 
@@ -143,6 +186,7 @@ function Line(){
 		this.context.globalAlpha=0.5;
 		this.context.clearRect(this.x,this.y,6,this.canvasHeight);
 
+
 		this.context.beginPath();
 		this.context.setLineDash([10]);
 		this.context.lineWidth="3";
@@ -236,6 +280,7 @@ function animate() {
 	game.line.draw();
 	game.bird.draw();
 	detectCollision();
+	soundTimer();
 	// game.line.init(game.line.width,0);
 
 }
