@@ -223,7 +223,6 @@ function Line() {
 		this.context.globalAlpha=0.5;
 		this.context.clearRect(this.x,this.y,6,this.canvasHeight);
 
-
 		this.context.beginPath();
 		this.context.setLineDash([10]);
 		this.context.lineWidth="3";
@@ -232,7 +231,7 @@ function Line() {
 		this.context.lineTo(this.x,this.canvasHeight-30);
 		this.context.stroke();
 
-		if (this.x <= 0){
+		if (this.x <= -this.context.lineWidth/2){
 			console.log(this.x);
 			this.x = this.canvasWidth;
 		}
