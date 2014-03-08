@@ -38,16 +38,6 @@ document.addEventListener('keydown', function (e) {
 	}
 }, false);
 
-var canvas = document.getElementById('bird');
-canvas.addEventListener("mousedown", doMouseDown, false);
-
-function doMouseDown(event) {
-	console.log("clicked!");
-	// x = event.pageX;
-	// y = event.pageY;
-	// console.log('('+x+','+y+')');
-}
-
 function init() {
 	if (game.init())
 		initAudio();
@@ -266,19 +256,8 @@ function Game() {
 		// the click event is only detected on the line canvas
 		// since it's the top most one
 		this.lineCanvas.addEventListener('click', function(e) {
-   			console.log("clicked line");
    			spacePressed = true;
 		}, false);
-
-		// this.bgCanvas.addEventListener("mousedown", doMouseDown, false);
-
-		this.bgCanvas.addEventListener('click', function(e) {
-        	console.log('click: ' + e.offsetX + '/' + e.offsetY);
-    	}, false);
-
-		// function doMouseDown(event) {
-		// 	console.log("clicked");
-		// }
 
 		// Test to see if canvas is supported
 		if (this.bgCanvas.getContext) {
