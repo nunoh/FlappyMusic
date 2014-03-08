@@ -2,8 +2,21 @@ html {
 	/*background: blue;*/
 }
 
-#container {
+body {
+	text-align: center;
+	background: #f2f6f8;
+}
 
+@font-face {
+	font-family: flappy-font;
+	src: url(flappy_font.ttf);
+}
+
+h1 {
+	font-family: flappy-font;
+	text-align: center;
+	color: orange;
+	font-weight: bold;
 }
 
 canvas {
@@ -11,6 +24,28 @@ canvas {
 	top: 0px;
 	left: 0px;
 	background: transparent;
-	margin-left: 10px;
-	margin-top: 10px;
+	margin-left: 360px;
+	margin-top: 40px;
 }
+
+
+#container {
+	display: inline-block;
+	width: 800px;
+	margin: 0 auto;
+}
+
+#game-canvas {
+	position: relative;
+	z-index: 20;
+	margin-top: 25px;
+	/*border: 1px solid red;*/
+}
+
+#iphone-frame {
+	width: 840px;
+	display: block;
+	position: absolute;
+	z-index: 1;
+}
+
