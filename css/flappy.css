@@ -17,6 +17,8 @@ h1 {
 	text-align: center;
 	color: orange;
 	font-weight: bold;
+	padding-top: 420px;
+	padding-left: 40px;
 }
 
 canvas {
@@ -25,7 +27,8 @@ canvas {
 	left: 0px;
 	background: transparent;
 	margin-left: 360px;
-	margin-top: 40px;
+	margin-top: 38px;
+	border-radius: 3px;
 }
 
 
@@ -46,6 +49,6 @@ canvas {
 	width: 840px;
 	display: block;
 	position: absolute;
-	z-index: 1;
+	z-index: -1;
 }
 

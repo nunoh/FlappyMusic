@@ -2,6 +2,11 @@
 =            GLOBALS            =
 ===============================*/
 
+// kind of works to stop h1 text highlight
+document.onselectstart = function() { return false; }
+document.onmousedown = function() { return false; }
+
+
 var spacePressed = false;
 window.onload = initAudio;
 var context;
@@ -32,6 +37,16 @@ document.addEventListener('keydown', function (e) {
 		spacePressed=true;
 	}
 }, false);
+
+var canvas = document.getElementById('bird');
+canvas.addEventListener("mousedown", doMouseDown, false);
+
+function doMouseDown(event) {
+	console.log("clicked!");
+	// x = event.pageX;
+	// y = event.pageY;
+	// console.log('('+x+','+y+')');
+}
 
 function init() {
 	if (game.init())
@@ -226,11 +241,11 @@ function Line() {
 
 
 function detectCollision() {
-	collision=false;
+	collision = false;
 	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
 		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
 		console.log("BOOM");
-		collision=true;
+		collision = true;
 	}
 return collision;
 }
@@ -248,6 +263,23 @@ function Game() {
 		this.bgCanvas = document.getElementById('background');
 		this.birdCanvas = document.getElementById('bird');
 		this.lineCanvas = document.getElementById('line');
+
+		// the click event is only detected on the line canvas
+		// since it's the top most one
+		this.lineCanvas.addEventListener('click', function(e) {
+   			console.log("clicked line");
+   			spacePressed = true;
+		}, false);
+
+		// this.bgCanvas.addEventListener("mousedown", doMouseDown, false);
+
+		this.bgCanvas.addEventListener('click', function(e) {
+        	console.log('click: ' + e.offsetX + '/' + e.offsetY);
+    	}, false);
+
+		// function doMouseDown(event) {
+		// 	console.log("clicked");
+		// }
 
 		// Test to see if canvas is supported
 		if (this.bgCanvas.getContext) {
@@ -318,5 +350,6 @@ window.requestAnimFrame = (function() {
 			window.msRequestAnimationFrame     ||
 			function(/* function */ callback, /* DOMElement */ element){
 				window.setTimeout(callback, 1000 / 60);
-			};
+		};
 })();
+
