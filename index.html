@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 	<head>
+		<title>FlappyMusic</title>
 
-		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" href="css/flappy.css">
 
-		<meta charset="utf-8">
-
-		<title>Flappy Music</title>
 	</head>
 
 	<body>
 
-
-		<h1>Flappy Bird Music</h1>
-
 		<div id="container">
-			<img src="images/iphone_frame.png" alt="" id="iphone-frame">
-	    	<canvas id="game-canvas" width="565" height="320"></canvas>
+			<canvas id="background" width="600" height="360">
+				Your browser does not support canvas. Please try again with a different browser.
+			</canvas>
+			<canvas id="bird" width="600" height="360"></canvas>
+			<canvas id="line" width="600" height="360"></canvas>
 		</div>
 
-		<script src="game.js"></script>
+		<script src="js/buffer-loader.js"></script>
+		<script src="js/flappy.js"></script>
+
 	</body>
 
 </html>

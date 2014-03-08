@@ -1,68 +1,80 @@
-var game = new Game();
+/*===============================
+=            GLOBALS            =
+===============================*/
 
-var spacePressed=false;
+var spacePressed = false;
 window.onload = initAudio;
 var context;
 var bufferLoader;
 
+sounds = [
+	'sounds/note1.mp3',
+	'sounds/note2.mp3',
+	'sounds/note3.mp3'
+];
+
+img_background = "images/background_flat.png";
+img_terrain    = "images/terrain.png";
+img_flappy     = "images/flappy2.png";
+
+background_speed = 0.5;
+terrain_speed = 3;
+
+/*============================
+=            MAIN            =
+============================*/
+
+var game = new Game();
+
 document.addEventListener('keydown', function (e) {
-    if (e.keyCode == 32) {
+	if (e.keyCode == 32) {
 		console.log(e.keyCode);
 		spacePressed=true;
-    }
+	}
 }, false);
 
 function init() {
-	if(game.init())
+	if (game.init())
 		initAudio();
 		game.start();
-
 }
 
-//---- SOUND -----//
+/*=============================
+=            AUDIO            =
+=============================*/
 
 function initAudio() {
-  window.AudioContext = window.AudioContext || window.webkitAudioContext;
-  context = new AudioContext();
-  bufferLoader = new BufferLoader(
-    context,
-    [
-		'sounds/note1.mp3', //each sound is a position of this buffers array so it can be easily randomized and paired with the gap
-		'sounds/note2.mp3',
-		'sounds/note3.mp3',
-    ],
-    finishedLoading
-    );
 
-  bufferLoader.load();
+	window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	context = new AudioContext();
+
+	bufferLoader = new BufferLoader(context, sounds, finishedLoading);
+
+	bufferLoader.load();
 }
 
 function finishedLoading(bufferList) {
-return;
+	return;
 }
 
 function playSound(bufferPos) {
-
 	var source = context.createBufferSource();
 	source.buffer = bufferLoader.bufferList[bufferPos];
 	source.connect(context.destination);
 	source.start(0);
-                                           
 }
 
-function soundTimer(){
-	if(game.line.x==game.line.canvasWidth){
-
-		sound=Math.floor((Math.random()*3));
+function soundTimer() {
+	if (game.line.x == game.line.canvasWidth) {
+		sound = Math.floor((Math.random() * 3));
 		console.log(sound);
 		playSound(sound);
-
 	}
-
 }
 
-
-//---IMAGES--------//
+/*==============================
+=            IMAGES            =
+==============================*/
 
 var imageRepository = new function() {
 
@@ -75,7 +87,7 @@ var imageRepository = new function() {
 	function imageLoaded() {
 		numLoaded++;
 
-		//potential place for loading screen
+		// potential place for load ing screen
 		if (numLoaded === numImages) {
 			window.init();
 		}
@@ -91,20 +103,19 @@ var imageRepository = new function() {
 	};
 
 	// Set images src
-	this.background.src = "images/background_flat.png";
-	this.terrain.src="images/terrain.png";
-	this.bird.src="images/flappy2.png";
+	this.background.src = img_background;
+	this.terrain.src = img_terrain;
+	this.bird.src = img_flappy;
 
 }();
-
 
 function Drawable() {
 	this.init = function(x, y, width, height) {
 		// Defualt variables
 		this.x = x;
 		this.y = y;
-		this.height=height;
-		this.width=width;
+		this.height = height;
+		this.width = width;
 	};
 
 	this.speed = 0;
@@ -117,38 +128,42 @@ function Drawable() {
 }
 
 function Background() {
-	this.speed = 0.5; //scrolling speed
+
+	// scrolling speed
+	this.speed = background_speed;
 
 	this.draw = function() {
+
 		// Pan background
 		this.x -= this.speed;
+
 		// this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
 
 		this.context.drawImage(imageRepository.background, this.x, this.y);
 		this.context.drawImage(imageRepository.background, this.x+this.canvasWidth, this.y);
 
-		if (this.x <= -this.canvasWidth){
+		if (this.x <= -this.canvasWidth) {
 			this.x = 0;
 		}
 	};
 
 }
 
-function Ground(){
-	this.speed = 3;
+function Ground() {
+	this.speed = terrain_speed;
 	this.draw = function() {
 		this.x -= this.speed;
 		this.context.drawImage(imageRepository.terrain, this.x, this.y);
 		this.context.drawImage(imageRepository.terrain, this.x+this.canvasWidth, this.y);
-		
+
 		if (this.x <= -this.canvasWidth){
 			this.x = 0;
 		}
 	};
 }
 
-function Bird(){
-	this.speed=3;
+function Bird() {
+	this.speed = 3;
 	isJumping = false;
 	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0];
 	ijump = 0;
@@ -163,7 +178,7 @@ function Bird(){
 		if (this.y<=0){
 			this.y=0;
 		}
-		
+
 		if (spacePressed) {
 			this.context.clearRect(this.x, this.y+jump[ijump-1], this.width, this.height);
 			this.context.drawImage(imageRepository.bird,this.x,this.y);
@@ -184,7 +199,8 @@ function Bird(){
 }
 
 
-function Line(){
+function Line() {
+
 	this.speed = 3;
 
 	this.draw = function() {
@@ -209,7 +225,7 @@ function Line(){
 }
 
 
-function detectCollision(){
+function detectCollision() {
 	collision=false;
 	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
 		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
@@ -221,15 +237,17 @@ return collision;
 
 
 Background.prototype = new Drawable();
-Ground.prototype=new Drawable();
-Bird.prototype=new Drawable();
-Line.prototype=new Drawable();
+Ground.prototype = new Drawable();
+Bird.prototype = new Drawable();
+Line.prototype = new Drawable();
 
 function Game() {
+
 	this.init = function() {
+
 		this.bgCanvas = document.getElementById('background');
-		this.birdCanvas=document.getElementById('bird');
-		this.lineCanvas=document.getElementById('line');
+		this.birdCanvas = document.getElementById('bird');
+		this.lineCanvas = document.getElementById('line');
 
 		// Test to see if canvas is supported
 		if (this.bgCanvas.getContext) {
@@ -243,32 +261,33 @@ function Game() {
 			Background.prototype.canvasHeight = this.bgCanvas.height;
 
 			Ground.prototype.context = this.bgContext;
-			Ground.prototype.canvasWidth=this.bgCanvas.width;
-			Ground.prototype.canvasHeight=this.bgCanvas.height;
+			Ground.prototype.canvasWidth = this.bgCanvas.width;
+			Ground.prototype.canvasHeight = this.bgCanvas.height;
 
-			Bird.prototype.context=this.birdContext;
-			Bird.prototype.canvasHeight=this.birdCanvas.height;
-			Bird.prototype.canvasWidth=this.birdCanvas.width;
+			Bird.prototype.context = this.birdContext;
+			Bird.prototype.canvasHeight = this.birdCanvas.height;
+			Bird.prototype.canvasWidth = this.birdCanvas.width;
 
-			Line.prototype.context=this.lineContext;
-			Line.prototype.canvasHeight=this.lineCanvas.height;
-			Line.prototype.canvasWidth=this.lineCanvas.width;
-
+			Line.prototype.context = this.lineContext;
+			Line.prototype.canvasHeight = this.lineCanvas.height;
+			Line.prototype.canvasWidth = this.lineCanvas.width;
 
 			this.background = new Background();
-			this.background.init(0,0);
+			this.background.init(0, 0);
 
 			this.terrain = new Ground();
-			this.terrain.init(0,this.bgCanvas.height-30);
+			this.terrain.init(0, this.bgCanvas.height - 30);
 
-			this.bird=new Bird();
+			this.bird = new Bird();
 			this.bird.init(100,100,imageRepository.bird.width,imageRepository.bird.height);
 
-			this.line=new Line();
+			this.line = new Line();
 			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
 
 			return true;
-		} else {
+		}
+
+		else {
 			return false;
 		}
 	};
@@ -291,7 +310,7 @@ function animate() {
 
 }
 
-window.requestAnimFrame = (function(){
+window.requestAnimFrame = (function() {
 	return  window.requestAnimationFrame       ||
 			window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame    ||
