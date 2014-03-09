@@ -50,7 +50,7 @@ document.addEventListener('keydown', function (e) {
 	}
 }, false);
 
-document.addEventListener('touchstart', function (e) {
+document.addEventListener('touchend', function (e) {
 		if (!started) started = true;
 		if (!gameOver) spacePressed = true;
 }, false);
@@ -237,7 +237,7 @@ function Bird() {
 		}
 
 		if (this.y <= -this.canvasHeight/4) {
-			this.y = -this.canvasHeight/4
+			this.y = -this.canvasHeight/4;
 		}
 
 		if (spacePressed) {
