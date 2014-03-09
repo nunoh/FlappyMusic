@@ -22,6 +22,7 @@ var name;
 var top_scores = [];
 var max_scores = 10;
 var button_down = false;
+var drawHorLines = false;
 // var flappy_initial_y =
 
 // really bad programming here! ;)
@@ -30,8 +31,8 @@ var button_img_down = document.getElementById('button-img-down');
 
 sounds = [
 	'sounds/note1.mp3',
-	'sounds/note2.mp3',
-	'sounds/note3.mp3'
+	'sounds/note2.mp3'
+	// 'sounds/note3.mp3'
 ];
 
 sounds_dfx = [
@@ -50,8 +51,9 @@ img_flappy     = "images/flappy2.png";
 var terrain_height = 50;
 
 var background_speed = 0.5;
-var scroll_speed = 3;
+var scroll_speed = 2.5;
 var gravity = 2;
+var jump_modifier = 0.5;
 
 /*============================
 =            MAIN            =
@@ -255,7 +257,7 @@ function Bird() {
 
 	this.gravity = gravity;
 	isJumping = false;
-	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0];
+	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0].map(function(x) { return x * jump_modifier; });;
 	ijump = 0;
 
 	this.draw = function() {
@@ -450,19 +452,22 @@ function Line() {
 			this.pipeY1 = (this.pipeY0 - pipe_height);
 
 			// horizontal lines
-			this.context.beginPath();
-			this.context.lineWidth = "1";
-			this.context.strokeStyle = "red";
-			this.context.moveTo(this.x - this.pipe_width/2, this.pipeY0);
-			this.context.lineTo(this.x + this.pipe_width/2, this.pipeY0);
-			this.context.stroke();
 
-			this.context.beginPath();
-			this.context.lineWidth = "1";
-			this.context.strokeStyle = "red";
-			this.context.moveTo(this.x - this.pipe_width/2, this.pipeY1);
-			this.context.lineTo(this.x + this.pipe_width/2, this.pipeY1);
-			this.context.stroke();
+			if (drawHorLines) {
+				this.context.beginPath();
+				this.context.lineWidth = "1";
+				this.context.strokeStyle = "red";
+				this.context.moveTo(this.x - this.pipe_width/2, this.pipeY0);
+				this.context.lineTo(this.x + this.pipe_width/2, this.pipeY0);
+				this.context.stroke();
+
+				this.context.beginPath();
+				this.context.lineWidth = "1";
+				this.context.strokeStyle = "red";
+				this.context.moveTo(this.x - this.pipe_width/2, this.pipeY1);
+				this.context.lineTo(this.x + this.pipe_width/2, this.pipeY1);
+				this.context.stroke();
+			}
 		}
 
 		if (this.x <= -this.pipe_width) {
@@ -477,12 +482,13 @@ function detectCollision() {
 
 	collision = false;
 
-	// if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
-	// 	game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-	// 	collision = true;
-	// }
+	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
+		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
+		collision = true;
+		drawHorLines = true;
+	}
 
-	if (game.bird.x + game.bird.width >= game.line.x && game.bird.x <= game.line.x + game.line.pipe_width)
+	// if (game.bird.x + game.bird.width >= game.line.x && game.bird.x <= game.line.x + game.line.pipe_width)
 		// console.log("aligned with pipe");
 
 	// if (game.bird.x < game.line.x + game.line.pipe_width  && game.bird.x + game.bird.width  > game.line.x &&
@@ -494,6 +500,7 @@ function detectCollision() {
 	if (!collision && collision_previous) {
 		score += 1;
 		playDFX('coin');
+		drawHorLines = false;
 	}
 
 	collision_previous = collision;
@@ -559,10 +566,10 @@ function Game() {
 			this.terrain.init(0, this.bgCanvas.height - terrain_height);
 
 			this.bird = new Bird();
-			this.bird.init(150,this.bgCanvas.height/2,imageRepository.bird.width,imageRepository.bird.height);
+			this.bird.init(150, this.bgCanvas.height/2, imageRepository.bird.width, imageRepository.bird.height);
 
 			this.line = new Line();
-			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height - terrain_height);
+			this.line.init(this.lineCanvas.width, 0, 3, this.lineCanvas.height - terrain_height);
 
 			this.ui = new UI();
 
