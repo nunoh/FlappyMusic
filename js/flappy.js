@@ -21,6 +21,12 @@ var scoreSent = false;
 var name;
 var top_scores = [];
 var max_scores = 10;
+var button_down = false;
+// var flappy_initial_y =
+
+// really bad programming here! ;)
+var button_img = document.getElementById('button-img');
+var button_img_down = document.getElementById('button-img-down');
 
 sounds = [
 	'sounds/note1.mp3',
@@ -71,6 +77,26 @@ function init() {
 		initAudio();
 		game.start();
 	getTopScores();
+
+	var canvas = document.getElementById('ui');
+	var context = canvas.getContext('2d');
+	canvas.addEventListener('mousemove', function(evt) {
+		var pos = getMousePos(canvas, evt);
+		if (gameOver)
+		{
+			if (pos.x >= game.uiCanvas.width/2 - button_img.width/2 &&
+				pos.x <= game.uiCanvas.width/2 + button_img.width/2 &&
+				pos.y >= game.uiCanvas.height/2 + 50 &&
+				pos.y <= game.uiCanvas.height/2 + 50 + button_img.height)
+			{
+				button_down = true;
+			}
+			else {
+				button_down = false;
+			}
+		}
+	}, false);
+
 }
 
 /*=============================
@@ -200,7 +226,7 @@ function Background() {
 		// this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
 
 		this.context.drawImage(imageRepository.background, this.x, this.y);
-		this.context.drawImage(imageRepository.background, this.x+this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y);
 
 		if (this.x <= -this.canvasWidth) {
 			this.x = 0;
@@ -214,6 +240,7 @@ function Ground() {
 	this.speed = scroll_speed;
 
 	this.draw = function() {
+
 		this.x -= this.speed;
 		this.context.drawImage(imageRepository.terrain, this.x, this.y);
 		this.context.drawImage(imageRepository.terrain, this.x + this.canvasWidth, this.y);
@@ -231,11 +258,12 @@ function Bird() {
 	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0];
 	ijump = 0;
 
-	// x and y position of bird image, is the top left corner
-
 	this.draw = function() {
 
 		// this.context.globalAlpha = 0.1;
+
+		// x and y position of bird image, is the top left corner
+		// debug lines for x and y position of Flappy
 
 		// draw y line
 		// this.context.beginPath();
@@ -257,8 +285,8 @@ function Bird() {
 			this.y += this.gravity;
 		}
 
-		this.context.clearRect(this.x, this.y-this.gravity, this.width, this.height);
-		this.context.drawImage(imageRepository.bird,this.x,this.y);
+		this.context.clearRect(this.x, this.y - this.gravity, this.width, this.height);
+		this.context.drawImage(imageRepository.bird, this.x, this.y);
 
 		// check collision with terrain
 		if (this.y >= this.canvasHeight - terrain_height - game.bird.height) {
@@ -275,7 +303,7 @@ function Bird() {
 		if (spacePressed) {
 
 			this.context.clearRect(this.x, this.y+jump[ijump-1], this.width, this.height);
-			this.context.drawImage(imageRepository.bird,this.x,this.y);
+			this.context.drawImage(imageRepository.bird, this.x, this.y);
 			isJumping = true;
 
 			if (ijump == jump.length) {
@@ -331,13 +359,23 @@ function UI() {
 			game.uiContext.textAlign = "center";
 			game.uiContext.textBaseline = "top";
 			game.uiContext.shadowColor = "black";
-			game.uiContext.shadowOffsetX = 3;
-			game.uiContext.shadowOffsetY = 3;
+			game.uiContext.shadowOffsetX = 1;
+			game.uiContext.shadowOffsetY = 1;
 			game.uiContext.fillText(score, 300, 32);
 
-
-			button_img = document.getElementById('button-img');
-			game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width/2, game.uiCanvas.height/2 + 50);
+			if (!button_down) {
+				button_img = document.getElementById('button-img');
+				game.uiContext.shadowOffsetX = 1;
+				game.uiContext.shadowOffsetY = 1;
+				game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width/2, game.uiCanvas.height/2 + 50);
+			}
+			else {
+				// game.uiContext.shadowColor = "black";
+				game.uiContext.shadowOffsetX = 0;
+				game.uiContext.shadowOffsetY = 0;
+				game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width/2, game.uiCanvas.height/2 + 50);
+				// game.uiContext.drawImage(button_img_down, game.uiCanvas.width/2 - button_img_down.width/2, game.uiCanvas.height/2 + 50);
+			}
 		}
 
 		if (!started) {
@@ -481,6 +519,7 @@ function Game() {
 		this.uiCanvas.addEventListener('click', function(e) {
 			if (!started) started = true;
 			if (!gameOver) { spacePressed = true; ijump = 0; }
+			if (gameOver && button_down) { reset(); }
 		}, false);
 
 		// Test to see if canvas is supported
@@ -616,7 +655,7 @@ function getTopScores() {
 				ul.appendChild(item);
 				top_scores.push(parseInt(dscore));
 			}
-			console.log(top_scores);
+			// console.log(top_scores);
 			scores_div = document.getElementById('scores');
 			scores_div.innerHTML = "";
 			scores_div.appendChild(ul);
@@ -648,4 +687,25 @@ function getCurrentDate() {
 
 	date = mm + '/' + dd + '/' + yyyy + ' ' + hours + ':' + minutes + ':' + seconds;
 	return date;
+}
+
+
+function getMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+		x: evt.clientX - rect.left,
+		y: evt.clientY - rect.top
+	};
+}
+
+function reset() {
+	console.log("resetting...");
+	location.reload();
+	// gameOver = false;
+	// started = false;
+	// game.bird.y = 100;
+	// game.line.x = 0;
+	// game.line.draw();
+	// game.bird.draw();
+	// animate();
 }
