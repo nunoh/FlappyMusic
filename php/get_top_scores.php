@@ -36,7 +36,7 @@
 		return $new_array;
 	}
 
-	$f = '../txt/history.txt';
+	$f = 'history.txt';
 	$contents = file_get_contents($f);
 
 	$lines = explode("\n", $contents);

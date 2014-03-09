@@ -559,7 +559,7 @@ function sendScore() {
 	scoreSent = true;
 	$.ajax({
 		type: "POST",
-		url: "php/put_score.php",
+		url: "//paginas.fe.up.pt/~ei08067/flappy/put_score.php",
 		data: {
 			name: name,
 			score: score,
@@ -574,7 +574,7 @@ function sendScore() {
 function getTopScores() {
 	$.ajax({
 		type: "GET",
-		url: "php/get_top_scores.php",
+		url: "//paginas.fe.up.pt/~ei08067/flappy/get_top_scores.php",
 		data: {}
 	})
 	.done(function(msg) {
