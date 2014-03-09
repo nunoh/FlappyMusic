@@ -11,6 +11,7 @@ var spacePressed = false;
 window.onload = initAudio;
 var context;
 var bufferLoader;
+var score = 0;
 
 sounds = [
 	'sounds/note1.mp3',
@@ -72,7 +73,7 @@ function playSound(bufferPos) {
 function soundTimer() {
 	if (game.line.x == game.line.canvasWidth) {
 		sound = Math.floor((Math.random() * 3));
-		console.log(sound);
+		console.log("sound: " + sound);
 		playSound(sound);
 	}
 }
@@ -155,7 +156,9 @@ function Background() {
 }
 
 function Ground() {
+
 	this.speed = terrain_speed;
+
 	this.draw = function() {
 		this.x -= this.speed;
 		this.context.drawImage(imageRepository.terrain, this.x, this.y);
@@ -168,23 +171,27 @@ function Ground() {
 }
 
 function Bird() {
+
 	this.speed = 3;
 	isJumping = false;
 	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0];
 	ijump = 0;
 
 	this.draw = function() {
-		this.y+=this.speed;
+
+		this.y += this.speed;
 		this.context.clearRect(this.x, this.y-this.speed, this.width, this.height);
 		this.context.drawImage(imageRepository.bird,this.x,this.y);
 
-		if (this.y>=this.canvasHeight-50){ //this should be less hardcoded
-			this.y=this.canvasHeight-50;}
-		if (this.y<=0){
-			this.y=0;
+		// check collision with terrain
+		if (this.y >= this.canvasHeight - 56) {
+			this.y = this.canvasHeight - 56;
+			this.y = 200;
+			gameOver();
 		}
 
 		if (spacePressed) {
+
 			this.context.clearRect(this.x, this.y+jump[ijump-1], this.width, this.height);
 			this.context.drawImage(imageRepository.bird,this.x,this.y);
 			isJumping = true;
@@ -192,14 +199,33 @@ function Bird() {
 			if (ijump == jump.length) {
 				isJumping = false;
 				spacePressed = false;
-				ijump=0;
+				ijump = 0;
 				return;
 			}
+
 			if (isJumping) {
 				this.y -= jump[ijump];
 				ijump += 1;
 			}
 		}
+	};
+}
+
+function UI() {
+
+	speed = 0.5;
+
+	this.draw = function() {
+
+		// game.uiContext.clearRect(0, game.uiCanvas.width, 0, game.uiCanvas.height);
+		game.uiContext.clearRect(0, 0, game.uiCanvas.width, game.uiCanvas.height);
+		game.uiContext.fillStyle = "white";
+		game.uiContext.font = "60px flappy-font";
+		game.uiContext.textAlign = "center";
+		game.uiContext.textBaseline = "top";
+		// game.uiContext.boxShadow = "10px 10px 5px #888888";
+		game.uiContext.fillText(score, 300, 32);
+
 	};
 }
 
@@ -222,9 +248,17 @@ function Line() {
 		this.context.stroke();
 
 		if (this.x <= -this.context.lineWidth/2){
-			console.log(this.x);
+			// console.log(this.x);
 			this.x = this.canvasWidth;
 		}
+
+		// display score
+		// this.context.fillStyle = "rgb(250, 250, 250)";
+		// this.context.fillStyle = "yellow";
+		// this.context.font = "24px flappy-font";
+		// this.context.textAlign = "left";
+		// this.context.textBaseline = "top";
+		// this.context.fillText("SCORE " + score, 32, 32);
 	};
 }
 
@@ -233,17 +267,18 @@ function detectCollision() {
 	collision = false;
 	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
 		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-		console.log("BOOM");
+		// console.log("BOOM");
 		collision = true;
+		score += 1;
 	}
-return collision;
+	return collision;
 }
-
 
 Background.prototype = new Drawable();
 Ground.prototype = new Drawable();
 Bird.prototype = new Drawable();
 Line.prototype = new Drawable();
+UI.prototype = new Drawable();
 
 function Game() {
 
@@ -252,18 +287,22 @@ function Game() {
 		this.bgCanvas = document.getElementById('background');
 		this.birdCanvas = document.getElementById('bird');
 		this.lineCanvas = document.getElementById('line');
+		this.uiCanvas = document.getElementById('ui');
 
 		// the click event is only detected on the line canvas
 		// since it's the top most one
-		this.lineCanvas.addEventListener('click', function(e) {
+		this.uiCanvas.addEventListener('click', function(e) {
    			spacePressed = true;
 		}, false);
 
 		// Test to see if canvas is supported
 		if (this.bgCanvas.getContext) {
+
 			this.bgContext = this.bgCanvas.getContext('2d');
-			this.birdContext=this.birdCanvas.getContext('2d');
-			this.lineContext=this.lineCanvas.getContext('2d');
+			this.birdContext = this.birdCanvas.getContext('2d');
+			this.lineContext = this.lineCanvas.getContext('2d');
+			this.uiContext = this.uiCanvas.getContext('2d');
+
 			// this.birdContext.globalAlpha=0.5;
 
 			Background.prototype.context = this.bgContext;
@@ -282,6 +321,10 @@ function Game() {
 			Line.prototype.canvasHeight = this.lineCanvas.height;
 			Line.prototype.canvasWidth = this.lineCanvas.width;
 
+			UI.prototype.context = this.uiContext;
+			UI.prototype.canvasHeight = this.uiCanvas.height;
+			UI.prototype.canvasWidth = this.uiCanvas.width;
+
 			this.background = new Background();
 			this.background.init(0, 0);
 
@@ -293,6 +336,8 @@ function Game() {
 
 			this.line = new Line();
 			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
+
+			this.ui = new UI();
 
 			return true;
 		}
@@ -314,10 +359,14 @@ function animate() {
 	game.terrain.draw();
 	game.line.draw();
 	game.bird.draw();
+	game.ui.draw();
 	detectCollision();
 	soundTimer();
 	// game.line.init(game.line.width,0);
+}
 
+function gameOver() {
+	alert("Game Over!");
 }
 
 window.requestAnimFrame = (function() {
