@@ -3,9 +3,8 @@
 ===============================*/
 
 // kind of works to stop h1 text highlight
-document.onselectstart = function() { return false; }
-document.onmousedown = function() { return false; }
-
+document.onselectstart = function() { return false; };
+document.onmousedown = function() { return false; };
 
 var spacePressed = false;
 window.onload = initAudio;
@@ -50,6 +49,12 @@ document.addEventListener('keydown', function (e) {
 		if (!gameOver) spacePressed = true;
 	}
 }, false);
+
+document.addEventListener('touchstart', function (e) {
+		if (!started) started = true;
+		if (!gameOver) spacePressed = true;
+}, false);
+
 
 function init() {
 	if (game.init())
