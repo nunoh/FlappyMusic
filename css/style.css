@@ -46,5 +46,14 @@ canvas {
 }
 
 .score {
-	font-style: italic;
+	/*font-style: italic;*/
+	font-weight: bold;
+}
+
+.rank {
+	font-style: bold;
+}
+
+li {
+	list-style: none;
 }

@@ -58,9 +58,12 @@
 
 	$top = array_slice($sorted, 0, 10);
 
+	// make sure not to return any zero as an high score!
 	for ($i = 0; $i < count($top); $i++) {
-		echo $top[$i]["name"] . " | " . $top[$i]["score"] . " | " . $top[$i]["date"];
-		echo "<br>";
+		if ($top[$i] != "0") {
+			echo $top[$i]["name"] . " | " . $top[$i]["score"] . " | " . $top[$i]["date"];
+			echo "<br>";
+		}
 	}
 
 ?>

@@ -18,8 +18,9 @@ var collision_previous = false;
 var started = false;
 var isound = 0;
 var scoreSent = false;
-var name = "empty";
-var top_scores;
+var name;
+var top_scores = [];
+var max_scores = 10;
 
 sounds = [
 	'sounds/note1.mp3',
@@ -299,6 +300,7 @@ function UI() {
 	this.draw = function() {
 
 		game.uiContext.clearRect(0, 0, game.uiCanvas.width, game.uiCanvas.height);
+
 		game.uiContext.fillStyle = "white";
 		game.uiContext.font = "60px flappy-font";
 		game.uiContext.textAlign = "center";
@@ -317,12 +319,22 @@ function UI() {
 			game.uiContext.shadowColor = "white";
 			game.uiContext.shadowOffsetX = 2;
 			game.uiContext.shadowOffsetY = 2;
-			game.uiContext.fillText("Game Over", 300, 32);
+			game.uiContext.fillText("Game Over", 300, 130);
 			// gameOver = false;
 			game.background.speed = 0;
 			game.line.speed = 0;
 			game.terrain.speed = 0;
 			game.bird.speed = 0;
+
+			game.uiContext.fillStyle = "white";
+			game.uiContext.font = "60px flappy-font";
+			game.uiContext.textAlign = "center";
+			game.uiContext.textBaseline = "top";
+			game.uiContext.shadowColor = "black";
+			game.uiContext.shadowOffsetX = 3;
+			game.uiContext.shadowOffsetY = 3;
+			game.uiContext.fillText(score, 300, 32);
+
 
 			button_img = document.getElementById('button-img');
 			game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width/2, game.uiCanvas.height/2 + 50);
@@ -553,8 +565,14 @@ window.requestAnimFrame = (function() {
 })();
 
 function sendScore() {
-	if (name == "empty")
-		name = prompt("What is yout name?");
+
+	if (score == 0)
+		return;
+
+	if (top_scores.length <= max_scores || score > top_scores[top_scores.length-1]) {
+		name = prompt("You made it to the high score list. What's your name?");
+	}
+
 	scoreSent = true;
 	$.ajax({
 		type: "POST",
@@ -566,7 +584,8 @@ function sendScore() {
 		}
 	})
 	.done(function(msg) {
-		console.log(msg);
+		// console.log(msg);
+		setTimeout(getTopScores(), 2000);
 	});
 }
 
@@ -577,33 +596,47 @@ function getTopScores() {
 		data: {}
 	})
 	.done(function(msg) {
+		top_scores = [];
 		lines = msg.split("<br>");
 		lines.pop(); // since the last element always empty because of the trailing <br> tag
-		var ul = document.createElement('ul');
-		for (i = 0; i < lines.length; i++) {
-			elems = lines[i].split(" | ");
-			name = elems[0];
-			dscore = elems[1];
-			date = elems[2];
-			item = document.createElement('li');
-			textstr = "<span class=\"name\">" + name + "</span>";
-			textstr += " <span class=\"score\">(" + dscore + ")</span>";
-			textstr += " <span class=\"date\">" + date + "</span>";
-			item.innerHTML = textstr;
-			ul.appendChild(item);
+		// console.log(lines.length);
+		if (lines.length != 0) {
+			var ul = document.createElement('ul');
+			for (i = 0; i < lines.length; i++) {
+				elems = lines[i].split(" | ");
+				name = elems[0];
+				dscore = elems[1];
+				date = elems[2];
+				item = document.createElement('li');
+				textstr = "<span class=\"rank\">" + (i+1) + ".</span>";
+				textstr += " <span class=\"name\">" + name + "</span>";
+				textstr += " <span class=\"score\">(" + dscore + ")</span>";
+				textstr += " <span class=\"date\">" + date + "</span>";
+				item.innerHTML = textstr;
+				ul.appendChild(item);
+				top_scores.push(parseInt(dscore));
+			}
+			console.log(top_scores);
+			scores_div = document.getElementById('scores');
+			scores_div.innerHTML = "";
+			scores_div.appendChild(ul);
 		}
-		scores_div = document.getElementById('scores');
-		scores_div.innerHTML = "";
-		scores_div.appendChild(ul);
+		else {
+			scores_div = document.getElementById('scores');
+			scores_div.innerHTML = "<i>No highscores yet...</i>";
+		}
 	});
 }
 
 function getCurrentDate() {
 
-	var today = new Date();
-	var dd    = today.getDate();
-	var mm    = today.getMonth() + 1; //January is 0!
-	var yyyy  = today.getFullYear();
+	var now     = new Date();
+	var dd      = now.getDate();
+	var mm      = now.getMonth() + 1; //January is 0!
+	var yyyy    = now.getFullYear();
+	var hours   = now.getHours();
+	var minutes = now.getMinutes();
+	var seconds = now.getSeconds();
 
 	if( dd < 10) {
 	    dd = '0' + dd;
@@ -613,6 +646,6 @@ function getCurrentDate() {
 	    mm = '0' + mm;
 	}
 
-	date = mm + '/' + dd + '/' + yyyy;
+	date = mm + '/' + dd + '/' + yyyy + ' ' + hours + ':' + minutes + ':' + seconds;
 	return date;
 }
