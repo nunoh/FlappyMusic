@@ -231,6 +231,10 @@ function Bird() {
 			gameOver = true;
 		}
 
+		if (this.y <= -this.canvasHeight/4) {
+			this.y = -this.canvasHeight/4
+		}
+
 		if (spacePressed) {
 
 			this.context.clearRect(this.x, this.y+jump[ijump-1], this.width, this.height);
@@ -288,7 +292,7 @@ function UI() {
 			game.uiContext.font = "60px flappy-font";
 			game.uiContext.textAlign = "center";
 			game.uiContext.textBaseline = "top";
-			game.uiContext.fillText("Get Ready!", 300, 32);
+			game.uiContext.fillText("Jump to Start!", 300, 32);
 		}
 
 	};
@@ -303,18 +307,18 @@ function Line() {
 
 		if (started) {
 			this.x -= this.speed;
+
+			this.context.globalAlpha=0.5;
+			this.context.clearRect(this.x,this.y,6,this.canvasHeight);
+
+			this.context.beginPath();
+			this.context.setLineDash([10]);
+			this.context.lineWidth = "3";
+			this.context.strokeStyle = "green";
+			this.context.moveTo(this.x,0);
+			this.context.lineTo(this.x,this.canvasHeight-30);
+			this.context.stroke();
 		}
-
-		this.context.globalAlpha=0.5;
-		this.context.clearRect(this.x,this.y,6,this.canvasHeight);
-
-		this.context.beginPath();
-		this.context.setLineDash([10]);
-		this.context.lineWidth = "3";
-		this.context.strokeStyle = "green";
-		this.context.moveTo(this.x,0);
-		this.context.lineTo(this.x,this.canvasHeight-30);
-		this.context.stroke();
 
 		if (this.x <= -this.context.lineWidth/2) {
 			this.x = this.canvasWidth;
@@ -401,7 +405,7 @@ function Game() {
 			this.terrain.init(0, this.bgCanvas.height - 30);
 
 			this.bird = new Bird();
-			this.bird.init(200,this.bgCanvas.height/2,imageRepository.bird.width,imageRepository.bird.height);
+			this.bird.init(150,this.bgCanvas.height/2,imageRepository.bird.width,imageRepository.bird.height);
 
 			this.line = new Line();
 			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
