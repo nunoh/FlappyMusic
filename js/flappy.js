@@ -11,12 +11,23 @@ var spacePressed = false;
 window.onload = initAudio;
 var context;
 var bufferLoader;
+var bufferLoader_dfx;
 var score = 0;
+var gameOver = false;
+var played = false;
+var collision_previous = false;
 
 sounds = [
 	'sounds/note1.mp3',
 	'sounds/note2.mp3',
 	'sounds/note3.mp3'
+];
+
+sounds_dfx = [
+	'sounds/coin.mp3',
+	'sounds/explosion.wav',
+	'sounds/power_up.wav',
+	'sounds/power_down.wav'
 ];
 
 img_background = "images/background_flat.png";
@@ -34,8 +45,7 @@ var game = new Game();
 
 document.addEventListener('keydown', function (e) {
 	if (e.keyCode == 32) {
-		console.log(e.keyCode);
-		spacePressed=true;
+		if (!gameOver) spacePressed = true;
 	}
 }, false);
 
@@ -54,9 +64,11 @@ function initAudio() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	context = new AudioContext();
 
+	bufferLoader_dfx = new BufferLoader(context, sounds_dfx, finishedLoading);
 	bufferLoader = new BufferLoader(context, sounds, finishedLoading);
 
 	bufferLoader.load();
+	bufferLoader_dfx.load();
 }
 
 function finishedLoading(bufferList) {
@@ -70,11 +82,36 @@ function playSound(bufferPos) {
 	source.start(0);
 }
 
+function playDFX(type) {
+	if (type == "coin")
+		pos = 0;
+	else if (type == "explosion")
+		pos = 1;
+	else if (type == "power_up")
+		pos = 2;
+	else if (type == "power_down")
+		pos = 3;
+	var source = context.createBufferSource();
+	source.buffer = bufferLoader_dfx.bufferList[pos];
+	source.connect(context.destination);
+	source.start(0);
+}
+
 function soundTimer() {
+
+	// cue sound
 	if (game.line.x == game.line.canvasWidth) {
 		sound = Math.floor((Math.random() * 3));
 		console.log("sound: " + sound);
 		playSound(sound);
+	}
+
+	// game over sound
+	if (game.bird.y >= game.bgCanvas.height - 56) {
+		if (!played) {
+			playDFX('power_down');
+			played = true;
+		}
 	}
 }
 
@@ -186,8 +223,7 @@ function Bird() {
 		// check collision with terrain
 		if (this.y >= this.canvasHeight - 56) {
 			this.y = this.canvasHeight - 56;
-			this.y = 200;
-			gameOver();
+			gameOver = true;
 		}
 
 		if (spacePressed) {
@@ -226,6 +262,21 @@ function UI() {
 		// game.uiContext.boxShadow = "10px 10px 5px #888888";
 		game.uiContext.fillText(score, 300, 32);
 
+		if (gameOver) {
+			game.uiContext.clearRect(0, 0, game.uiCanvas.width, game.uiCanvas.height);
+			game.uiContext.fillStyle = "orange";
+			game.uiContext.font = "60px flappy-font";
+			game.uiContext.textAlign = "center";
+			game.uiContext.textBaseline = "top";
+			game.uiContext.fillText("Game Over", 300, 32);
+			// gameOver = false;
+			game.background.speed = 0;
+			game.line.speed = 0;
+			game.terrain.speed = 0;
+			game.bird.speed = 0;
+
+		}
+
 	};
 }
 
@@ -241,37 +292,36 @@ function Line() {
 
 		this.context.beginPath();
 		this.context.setLineDash([10]);
-		this.context.lineWidth="3";
-		this.context.strokeStyle="green";
+		this.context.lineWidth = "3";
+		this.context.strokeStyle = "green";
 		this.context.moveTo(this.x,0);
 		this.context.lineTo(this.x,this.canvasHeight-30);
 		this.context.stroke();
 
-		if (this.x <= -this.context.lineWidth/2){
-			// console.log(this.x);
+		if (this.x <= -this.context.lineWidth/2) {
 			this.x = this.canvasWidth;
 		}
 
-		// display score
-		// this.context.fillStyle = "rgb(250, 250, 250)";
-		// this.context.fillStyle = "yellow";
-		// this.context.font = "24px flappy-font";
-		// this.context.textAlign = "left";
-		// this.context.textBaseline = "top";
-		// this.context.fillText("SCORE " + score, 32, 32);
 	};
 }
 
 
 function detectCollision() {
+
 	collision = false;
+
 	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
 		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-		// console.log("BOOM");
 		collision = true;
-		score += 1;
 	}
-	return collision;
+
+	// update score if current is not colliding but previous was
+	if (!collision && collision_previous) {
+		score += 1;
+		playDFX('coin');
+	}
+
+	collision_previous = collision;
 }
 
 Background.prototype = new Drawable();
@@ -292,7 +342,7 @@ function Game() {
 		// the click event is only detected on the line canvas
 		// since it's the top most one
 		this.uiCanvas.addEventListener('click', function(e) {
-   			spacePressed = true;
+			if (!gameOver) spacePressed = true;
 		}, false);
 
 		// Test to see if canvas is supported
@@ -332,7 +382,7 @@ function Game() {
 			this.terrain.init(0, this.bgCanvas.height - 30);
 
 			this.bird = new Bird();
-			this.bird.init(100,100,imageRepository.bird.width,imageRepository.bird.height);
+			this.bird.init(200,100,imageRepository.bird.width,imageRepository.bird.height);
 
 			this.line = new Line();
 			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
@@ -363,10 +413,6 @@ function animate() {
 	detectCollision();
 	soundTimer();
 	// game.line.init(game.line.width,0);
-}
-
-function gameOver() {
-	alert("Game Over!");
 }
 
 window.requestAnimFrame = (function() {
