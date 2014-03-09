@@ -325,8 +325,7 @@ function UI() {
 			game.bird.speed = 0;
 
 			button_img = document.getElementById('button-img');
-			game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width - 10, game.uiCanvas.height/2 + 50);
-			game.uiContext.drawImage(button_img, game.uiCanvas.width/2  + 10, game.uiCanvas.height/2 + 50);
+			game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width/2, game.uiCanvas.height/2 + 50);
 		}
 
 		if (!started) {
@@ -387,13 +386,13 @@ function Line() {
 			this.context.lineTo(this.x + this.pipe_width/2, this.canvasHeight - terrain_height);
 			this.context.stroke();
 
-			this.context.beginPath();
-			// this.context.setLineDash([10]);
-			this.context.lineWidth = "3";
-			this.context.strokeStyle = "green";
-			this.context.moveTo(game.uiCanvas.width/2, 0);
-			this.context.lineTo(game.uiCanvas.width/2, game.uiCanvas.height);
-			this.context.stroke();
+			// this.context.beginPath();
+			// // this.context.setLineDash([10]);
+			// this.context.lineWidth = "3";
+			// this.context.strokeStyle = "green";
+			// this.context.moveTo(game.uiCanvas.width/2, 0);
+			// this.context.lineTo(game.uiCanvas.width/2, game.uiCanvas.height);
+			// this.context.stroke();
 
 			delta_y = this.canvasHeight - terrain_height;
 			pipe_height = delta_y / sounds.length;
@@ -559,7 +558,7 @@ function sendScore() {
 	scoreSent = true;
 	$.ajax({
 		type: "POST",
-		url: "//paginas.fe.up.pt/~ei08067/flappy/put_score.php",
+		url: "php/put_score.php",
 		data: {
 			name: name,
 			score: score,
@@ -567,14 +566,14 @@ function sendScore() {
 		}
 	})
 	.done(function(msg) {
-		console.log("Data Saved: " + msg);
+		console.log(msg);
 	});
 }
 
 function getTopScores() {
 	$.ajax({
 		type: "GET",
-		url: "//paginas.fe.up.pt/~ei08067/flappy/get_top_scores.php",
+		url: "php/get_top_scores.php",
 		data: {}
 	})
 	.done(function(msg) {
@@ -584,16 +583,13 @@ function getTopScores() {
 		for (i = 0; i < lines.length; i++) {
 			elems = lines[i].split(" | ");
 			name = elems[0];
-			score = elems[1];
+			dscore = elems[1];
 			date = elems[2];
 			item = document.createElement('li');
 			textstr = "<span class=\"name\">" + name + "</span>";
-			textstr += " <span class=\"score\">(" + score + ")</span>";
+			textstr += " <span class=\"score\">(" + dscore + ")</span>";
 			textstr += " <span class=\"date\">" + date + "</span>";
-			console.log(textstr);
-			// textstr = textstr.replace("'", "\"");
 			item.innerHTML = textstr;
-			// item.appendChild(document.createTextNode(textstr));
 			ul.appendChild(item);
 		}
 		scores_div = document.getElementById('scores');
