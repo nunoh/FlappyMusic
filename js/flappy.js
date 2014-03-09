@@ -16,6 +16,7 @@ var score = 0;
 var gameOver = false;
 var played = false;
 var collision_previous = false;
+var started = false;
 
 sounds = [
 	'sounds/note1.mp3',
@@ -45,6 +46,7 @@ var game = new Game();
 
 document.addEventListener('keydown', function (e) {
 	if (e.keyCode == 32) {
+		if (!started) started = true;
 		if (!gameOver) spacePressed = true;
 	}
 }, false);
@@ -100,7 +102,7 @@ function playDFX(type) {
 function soundTimer() {
 
 	// cue sound
-	if (game.line.x == game.line.canvasWidth) {
+	if (started && game.line.x == game.line.canvasWidth) {
 		sound = Math.floor((Math.random() * 3));
 		console.log("sound: " + sound);
 		playSound(sound);
@@ -216,7 +218,10 @@ function Bird() {
 
 	this.draw = function() {
 
-		this.y += this.speed;
+		if (started) {
+			this.y += this.speed;
+		}
+
 		this.context.clearRect(this.x, this.y-this.speed, this.width, this.height);
 		this.context.drawImage(imageRepository.bird,this.x,this.y);
 
@@ -277,6 +282,15 @@ function UI() {
 
 		}
 
+		if (!started) {
+			game.uiContext.clearRect(0, 0, game.uiCanvas.width, game.uiCanvas.height);
+			game.uiContext.fillStyle = "orange";
+			game.uiContext.font = "60px flappy-font";
+			game.uiContext.textAlign = "center";
+			game.uiContext.textBaseline = "top";
+			game.uiContext.fillText("Get Ready!", 300, 32);
+		}
+
 	};
 }
 
@@ -286,7 +300,11 @@ function Line() {
 	this.speed = 3;
 
 	this.draw = function() {
-		this.x -= this.speed;
+
+		if (started) {
+			this.x -= this.speed;
+		}
+
 		this.context.globalAlpha=0.5;
 		this.context.clearRect(this.x,this.y,6,this.canvasHeight);
 
@@ -342,6 +360,7 @@ function Game() {
 		// the click event is only detected on the line canvas
 		// since it's the top most one
 		this.uiCanvas.addEventListener('click', function(e) {
+			if (!started) started = true;
 			if (!gameOver) spacePressed = true;
 		}, false);
 
@@ -382,7 +401,7 @@ function Game() {
 			this.terrain.init(0, this.bgCanvas.height - 30);
 
 			this.bird = new Bird();
-			this.bird.init(200,100,imageRepository.bird.width,imageRepository.bird.height);
+			this.bird.init(200,this.bgCanvas.height/2,imageRepository.bird.width,imageRepository.bird.height);
 
 			this.line = new Line();
 			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
