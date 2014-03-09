@@ -6,12 +6,15 @@
 
 		<link rel="stylesheet" href="css/style.css">
 		<link rel="icon" type="image/png" href="images/icon.png">
+		<script src="js/jquery-2.1.0.min.js"></script>
 
 	</head>
 
 	<body>
 
 		<div id="container">
+
+			<img id="button-img" src="images/button.png" alt="" style="display: none; width: 100px">
 
 			<img src="images/iphone_frame.png" alt="" id="iphone-frame">
 			<canvas id="background" width="600" height="360">
@@ -23,6 +26,10 @@
 		</div>
 
 		<h1>Flappy Music</h1>
+
+		<div id="scores">
+			Loading top high scores...
+		</div>
 
 		<script src="js/buffer-loader.js"></script>
 		<script src="js/flappy.js"></script>

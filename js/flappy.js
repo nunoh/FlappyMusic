@@ -16,6 +16,10 @@ var gameOver = false;
 var played = false;
 var collision_previous = false;
 var started = false;
+var isound = 0;
+var scoreSent = false;
+var name = "empty";
+var top_scores;
 
 sounds = [
 	'sounds/note1.mp3',
@@ -34,8 +38,13 @@ img_background = "images/background_flat.png";
 img_terrain    = "images/terrain.png";
 img_flappy     = "images/flappy2.png";
 
-background_speed = 0.5;
-terrain_speed = 3;
+// button_img = document.getElementById('button-img');
+
+var terrain_height = 50;
+
+var background_speed = 0.5;
+var scroll_speed = 3;
+var gravity = 2;
 
 /*============================
 =            MAIN            =
@@ -46,7 +55,7 @@ var game = new Game();
 document.addEventListener('keydown', function (e) {
 	if (e.keyCode == 32) {
 		if (!started) started = true;
-		if (!gameOver) spacePressed = true;
+		if (!gameOver) { spacePressed = true; ijump = 0; }
 	}
 }, false);
 
@@ -60,6 +69,7 @@ function init() {
 	if (game.init())
 		initAudio();
 		game.start();
+	getTopScores();
 }
 
 /*=============================
@@ -108,13 +118,13 @@ function soundTimer() {
 
 	// cue sound
 	if (started && game.line.x == game.line.canvasWidth) {
-		sound = Math.floor((Math.random() * 3));
-		console.log("sound: " + sound);
-		playSound(sound);
+		isound = Math.floor((Math.random() * sounds.length));
+		console.log("sound: " + isound);
+		playSound(isound);
 	}
 
 	// game over sound
-	if (game.bird.y >= game.bgCanvas.height - 56) {
+	if (game.bird.y >= game.bgCanvas.height - terrain_height - game.bird.height) {
 		if (!played) {
 			playDFX('power_down');
 			played = true;
@@ -156,7 +166,6 @@ var imageRepository = new function() {
 	this.background.src = img_background;
 	this.terrain.src = img_terrain;
 	this.bird.src = img_flappy;
-
 }();
 
 function Drawable() {
@@ -201,12 +210,12 @@ function Background() {
 
 function Ground() {
 
-	this.speed = terrain_speed;
+	this.speed = scroll_speed;
 
 	this.draw = function() {
 		this.x -= this.speed;
 		this.context.drawImage(imageRepository.terrain, this.x, this.y);
-		this.context.drawImage(imageRepository.terrain, this.x+this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.terrain, this.x + this.canvasWidth, this.y);
 
 		if (this.x <= -this.canvasWidth){
 			this.x = 0;
@@ -216,26 +225,48 @@ function Ground() {
 
 function Bird() {
 
-	this.speed = 3;
+	this.gravity = gravity;
 	isJumping = false;
 	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0];
 	ijump = 0;
 
+	// x and y position of bird image, is the top left corner
+
 	this.draw = function() {
 
+		// this.context.globalAlpha = 0.1;
+
+		// draw y line
+		// this.context.beginPath();
+		// this.context.lineWidth = "0.5";
+		// this.context.strokeStyle = "black";
+		// this.context.moveTo(this.x, 0);
+		// this.context.lineTo(this.x, this.canvasHeight);
+		// this.context.stroke();
+
+		// draw x line
+		// this.context.beginPath();
+		// this.context.lineWidth = "0.5";
+		// this.context.strokeStyle = "black";
+		// this.context.moveTo(0, this.y);
+		// this.context.lineTo(this.canvasWidth, this.y);
+		// this.context.stroke();
+
 		if (started) {
-			this.y += this.speed;
+			this.y += this.gravity;
 		}
 
-		this.context.clearRect(this.x, this.y-this.speed, this.width, this.height);
+		this.context.clearRect(this.x, this.y-this.gravity, this.width, this.height);
 		this.context.drawImage(imageRepository.bird,this.x,this.y);
 
 		// check collision with terrain
-		if (this.y >= this.canvasHeight - 56) {
-			this.y = this.canvasHeight - 56;
+		if (this.y >= this.canvasHeight - terrain_height - game.bird.height) {
+			this.y = this.canvasHeight - terrain_height - game.bird.height;
 			gameOver = true;
+			if (!scoreSent) sendScore();
 		}
 
+		// limit max height above screen
 		if (this.y <= -this.canvasHeight/4) {
 			this.y = -this.canvasHeight/4;
 		}
@@ -267,13 +298,14 @@ function UI() {
 
 	this.draw = function() {
 
-		// game.uiContext.clearRect(0, game.uiCanvas.width, 0, game.uiCanvas.height);
 		game.uiContext.clearRect(0, 0, game.uiCanvas.width, game.uiCanvas.height);
 		game.uiContext.fillStyle = "white";
 		game.uiContext.font = "60px flappy-font";
 		game.uiContext.textAlign = "center";
 		game.uiContext.textBaseline = "top";
-		// game.uiContext.boxShadow = "10px 10px 5px #888888";
+		game.uiContext.shadowColor = "black";
+		game.uiContext.shadowOffsetX = 3;
+		game.uiContext.shadowOffsetY = 3;
 		game.uiContext.fillText(score, 300, 32);
 
 		if (gameOver) {
@@ -282,6 +314,9 @@ function UI() {
 			game.uiContext.font = "60px flappy-font";
 			game.uiContext.textAlign = "center";
 			game.uiContext.textBaseline = "top";
+			game.uiContext.shadowColor = "white";
+			game.uiContext.shadowOffsetX = 2;
+			game.uiContext.shadowOffsetY = 2;
 			game.uiContext.fillText("Game Over", 300, 32);
 			// gameOver = false;
 			game.background.speed = 0;
@@ -289,15 +324,30 @@ function UI() {
 			game.terrain.speed = 0;
 			game.bird.speed = 0;
 
+			button_img = document.getElementById('button-img');
+			game.uiContext.drawImage(button_img, game.uiCanvas.width/2 - button_img.width - 10, game.uiCanvas.height/2 + 50);
+			game.uiContext.drawImage(button_img, game.uiCanvas.width/2  + 10, game.uiCanvas.height/2 + 50);
 		}
 
 		if (!started) {
+
 			game.uiContext.clearRect(0, 0, game.uiCanvas.width, game.uiCanvas.height);
-			game.uiContext.fillStyle = "orange";
+
+			// format text propreties
+			game.uiContext.fillStyle = "rgb(100, 221, 44)";
 			game.uiContext.font = "60px flappy-font";
 			game.uiContext.textAlign = "center";
 			game.uiContext.textBaseline = "top";
-			game.uiContext.fillText("Jump to Start!", 300, 32);
+			// game.uiContext.fillStyle = "orange";
+
+			// shadow
+			game.uiContext.shadowColor = "white";
+			game.uiContext.shadowOffsetX = 2;
+			game.uiContext.shadowOffsetY = 2;
+			// game.uiContext.shadowBlur = 1;
+
+			// draw text finally
+			game.uiContext.fillText("Get Ready!", 300, 32);
 		}
 
 	};
@@ -306,26 +356,67 @@ function UI() {
 
 function Line() {
 
-	this.speed = 3;
+	this.speed = scroll_speed;
+	this.pipe_width = 50;
 
 	this.draw = function() {
 
 		if (started) {
+
 			this.x -= this.speed;
 
-			this.context.globalAlpha=0.5;
-			this.context.clearRect(this.x,this.y,6,this.canvasHeight);
+			// this.context.globalAlpha = 0.5;
+
+			// this.context.clearRect(this.x, this.y, 6, this.canvasHeight);
+
+			this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 			this.context.beginPath();
-			this.context.setLineDash([10]);
+			// this.context.setLineDash([10]);
 			this.context.lineWidth = "3";
 			this.context.strokeStyle = "green";
-			this.context.moveTo(this.x,0);
-			this.context.lineTo(this.x,this.canvasHeight-30);
+			this.context.moveTo(this.x - this.pipe_width/2, 0);
+			this.context.lineTo(this.x - this.pipe_width/2, this.canvasHeight - terrain_height);
+			this.context.stroke();
+
+			this.context.beginPath();
+			// this.context.setLineDash([10]);
+			this.context.lineWidth = "3";
+			this.context.strokeStyle = "green";
+			this.context.moveTo(this.x + this.pipe_width/2, 0);
+			this.context.lineTo(this.x + this.pipe_width/2, this.canvasHeight - terrain_height);
+			this.context.stroke();
+
+			this.context.beginPath();
+			// this.context.setLineDash([10]);
+			this.context.lineWidth = "3";
+			this.context.strokeStyle = "green";
+			this.context.moveTo(game.uiCanvas.width/2, 0);
+			this.context.lineTo(game.uiCanvas.width/2, game.uiCanvas.height);
+			this.context.stroke();
+
+			delta_y = this.canvasHeight - terrain_height;
+			pipe_height = delta_y / sounds.length;
+			this.pipeY0 = delta_y - (isound * pipe_height);
+			this.pipeY1 = (this.pipeY0 - pipe_height);
+
+			// horizontal lines
+			this.context.beginPath();
+			this.context.lineWidth = "1";
+			this.context.strokeStyle = "red";
+			this.context.moveTo(this.x - this.pipe_width/2, this.pipeY0);
+			this.context.lineTo(this.x + this.pipe_width/2, this.pipeY0);
+			this.context.stroke();
+
+			this.context.beginPath();
+			this.context.lineWidth = "1";
+			this.context.strokeStyle = "red";
+			this.context.moveTo(this.x - this.pipe_width/2, this.pipeY1);
+			this.context.lineTo(this.x + this.pipe_width/2, this.pipeY1);
 			this.context.stroke();
 		}
 
-		if (this.x <= -this.context.lineWidth/2) {
+		if (this.x <= -this.pipe_width) {
 			this.x = this.canvasWidth;
 		}
 
@@ -337,10 +428,18 @@ function detectCollision() {
 
 	collision = false;
 
-	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
-		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-		collision = true;
-	}
+	// if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
+	// 	game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
+	// 	collision = true;
+	// }
+
+	if (game.bird.x + game.bird.width >= game.line.x && game.bird.x <= game.line.x + game.line.pipe_width)
+		// console.log("aligned with pipe");
+
+	// if (game.bird.x < game.line.x + game.line.pipe_width  && game.bird.x + game.bird.width  > game.line.x &&
+		// game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
+		// collision = true;
+	// }
 
 	// update score if current is not colliding but previous was
 	if (!collision && collision_previous) {
@@ -370,7 +469,7 @@ function Game() {
 		// since it's the top most one
 		this.uiCanvas.addEventListener('click', function(e) {
 			if (!started) started = true;
-			if (!gameOver) spacePressed = true;
+			if (!gameOver) { spacePressed = true; ijump = 0; }
 		}, false);
 
 		// Test to see if canvas is supported
@@ -407,13 +506,13 @@ function Game() {
 			this.background.init(0, 0);
 
 			this.terrain = new Ground();
-			this.terrain.init(0, this.bgCanvas.height - 30);
+			this.terrain.init(0, this.bgCanvas.height - terrain_height);
 
 			this.bird = new Bird();
 			this.bird.init(150,this.bgCanvas.height/2,imageRepository.bird.width,imageRepository.bird.height);
 
 			this.line = new Line();
-			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height-30);
+			this.line.init(this.lineCanvas.width,0,3,this.lineCanvas.height - terrain_height);
 
 			this.ui = new UI();
 
@@ -454,3 +553,70 @@ window.requestAnimFrame = (function() {
 		};
 })();
 
+function sendScore() {
+	if (name == "empty")
+		name = prompt("What is yout name?");
+	scoreSent = true;
+	$.ajax({
+		type: "POST",
+		url: "php/put_score.php",
+		data: {
+			name: name,
+			score: score,
+			date: getCurrentDate()
+		}
+	})
+	.done(function(msg) {
+		console.log("Data Saved: " + msg);
+	});
+}
+
+function getTopScores() {
+	$.ajax({
+		type: "GET",
+		url: "php/get_top_scores.php",
+		data: {}
+	})
+	.done(function(msg) {
+		lines = msg.split("<br>");
+		lines.pop(); // since the last element always empty because of the trailing <br> tag
+		var ul = document.createElement('ul');
+		for (i = 0; i < lines.length; i++) {
+			elems = lines[i].split(" | ");
+			name = elems[0];
+			score = elems[1];
+			date = elems[2];
+			item = document.createElement('li');
+			textstr = "<span class=\"name\">" + name + "</span>";
+			textstr += " <span class=\"score\">(" + score + ")</span>";
+			textstr += " <span class=\"date\">" + date + "</span>";
+			console.log(textstr);
+			// textstr = textstr.replace("'", "\"");
+			item.innerHTML = textstr;
+			// item.appendChild(document.createTextNode(textstr));
+			ul.appendChild(item);
+		}
+		scores_div = document.getElementById('scores');
+		scores_div.innerHTML = "";
+		scores_div.appendChild(ul);
+	});
+}
+
+function getCurrentDate() {
+
+	var today = new Date();
+	var dd    = today.getDate();
+	var mm    = today.getMonth() + 1; //January is 0!
+	var yyyy  = today.getFullYear();
+
+	if( dd < 10) {
+	    dd = '0' + dd;
+	}
+
+	if( mm < 10) {
+	    mm = '0' + mm;
+	}
+
+	date = mm + '/' + dd + '/' + yyyy;
+	return date;
+}
