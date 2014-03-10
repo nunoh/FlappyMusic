@@ -257,7 +257,7 @@ function Ground() {
 			// draw tap image
 			tap_img = document.getElementById('tap-img');
 			// console.log(tap_img);
-			this.context.drawImage(tap_img, 275, 150);
+			this.context.drawImage(tap_img, 270, 150);
 		}
 
 		if (started && beginning) {
@@ -648,10 +648,11 @@ function sendScore() {
 		console.log(name);
 	}
 
-	if (name == "") {
-		console.log("not caring about high score");
+	if (name == "null" || name == "") {
+		return;
 	}
-	else {
+
+	if (name != null) {
 		$.ajax({
 			type: "POST",
 			url: "php/put_score.php",
@@ -738,7 +739,8 @@ function getCurrentDate() {
 	    seconds = '0' + seconds;
 	}
 
-	date = mm + '/' + dd + '/' + yyyy + ' ' + hours + ':' + minutes + ':' + seconds;
+	// date = mm + '/' + dd + '/' + yyyy + ' ' + hours + ':' + minutes + ':' + seconds;
+	date = mm + '/' + dd + '/' + yyyy + ' ' + hours + ':' + minutes;
 	return date;
 }
 
