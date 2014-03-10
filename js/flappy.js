@@ -253,6 +253,13 @@ function Ground() {
 
 		this.x -= scroll_speed;
 
+		if (!started) {
+			// draw tap image
+			tap_img = document.getElementById('tap-img');
+			// console.log(tap_img);
+			this.context.drawImage(tap_img, 275, 150);
+		}
+
 		if (started && beginning) {
 
 			if (beginning_length_acum >= beginning_length) {
@@ -277,7 +284,7 @@ function Bird() {
 
 	this.gravity = gravity;
 	isJumping = false;
-	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0].map(function(x) { return x * jump_modifier; });
+	jump = [5, 10, 15, 25, 15, 10].map(function(x) { return x * jump_modifier; });
 	ijump = 0;
 
 	this.draw = function() {
@@ -474,7 +481,7 @@ function Line() {
 				this.context.moveTo(this.x + this.pipe_width/2, 0);
 				this.context.lineTo(this.x + this.pipe_width/2, this.canvasHeight - terrain_height);
 				this.context.stroke();
-			}	
+			}
 		}
 
 		if (this.x <= -this.pipe_width) {
@@ -586,7 +593,7 @@ function Game() {
 			this.terrain.init(0, this.bgCanvas.height - terrain_height);
 
 			this.bird = new Bird();
-			this.bird.init(150, this.bgCanvas.height/2, imageRepository.bird.width, imageRepository.bird.height);
+			this.bird.init(200, this.bgCanvas.height/2, imageRepository.bird.width, imageRepository.bird.height);
 
 			this.line = new Line();
 			this.line.init(this.lineCanvas.width, 0, 3, this.lineCanvas.height - terrain_height);
