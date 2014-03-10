@@ -307,7 +307,7 @@ function Bird() {
 		if (started) {
 			this.y += this.gravity;
 		}
-
+		this.context.clearRect(0,0,this.canvasHeight,this.canvasWidth);
 		this.context.clearRect(this.x, this.y - this.gravity, this.width, this.height);
 		this.context.drawImage(imageRepository.bird, this.x, this.y);
 
@@ -320,8 +320,8 @@ function Bird() {
 		}
 
 		// limit max height above screen
-		if (this.y <= -this.canvasHeight/4) {
-			this.y = -this.canvasHeight/4;
+		if (this.y <= 0) {
+			this.y = 0;
 		}
 
 		if (spacePressed) {
@@ -441,66 +441,38 @@ function Line() {
 			if (beginning) {
 				return;
 			}
-
 			this.x -= scroll_speed;
-
-			this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-
-			this.context.beginPath();
-			// this.context.setLineDash([10]);
-			this.context.lineWidth = "3";
-			this.context.strokeStyle = "green";
-			this.context.moveTo(this.x - this.pipe_width/2, 0);
-			// console.log(this.pipe_width);
-			this.context.lineTo(this.x - this.pipe_width/2, this.canvasHeight - terrain_height);
-			this.context.stroke();
-
-			this.context.beginPath();
-			// this.context.setLineDash([10]);
-			this.context.lineWidth = "3";
-			this.context.strokeStyle = "green";
-			this.context.moveTo(this.x + this.pipe_width/2, 0);
-			this.context.lineTo(this.x + this.pipe_width/2, this.canvasHeight - terrain_height);
-			this.context.stroke();
-
-			// this.context.beginPath();
-			// // this.context.setLineDash([10]);
-			// this.context.lineWidth = "3";
-			// this.context.strokeStyle = "green";
-			// this.context.moveTo(game.uiCanvas.width/2, 0);
-			// this.context.lineTo(game.uiCanvas.width/2, game.uiCanvas.height);
-			// this.context.stroke();
 
 			delta_y = this.canvasHeight - terrain_height;
 			pipe_height = delta_y / sounds.length;
 			this.pipeY0 = delta_y - (isound * pipe_height);
 			this.pipeY1 = (this.pipeY0 - pipe_height);
-
-			// horizontal lines
+			this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 			if (drawHorLines) {
-
-				// this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 				this.context.fillStyle = 'green';
 				this.context.fillRect(this.x-this.pipe_width/2,0,this.pipe_width,this.pipeY1);
 				this.context.fillRect(this.x-this.pipe_width/2,this.pipeY0,this.pipe_width,delta_y-this.pipeY0);
-
-				// this.context.fillRect(this.x-this.pipe_width/2,delta_y,this.x+this.pipe_width/2,this.pipeY0);
-				// this.context.beginPath();
-				// this.context.lineWidth = "1";
-				// this.context.strokeStyle = "red";
-				// this.context.moveTo(this.x - this.pipe_width/2, this.pipeY0);
-				// this.context.lineTo(this.x + this.pipe_width/2, this.pipeY0);
-				// this.context.stroke();
-
-				// this.context.beginPath();
-				// this.context.lineWidth = "1";
-				// this.context.strokeStyle = "red";
-				// this.context.moveTo(this.x - this.pipe_width/2, this.pipeY1);
-				// this.context.lineTo(this.x + this.pipe_width/2, this.pipeY1);
-				// this.context.stroke();
 			}
+			else{
+
+				this.context.beginPath();
+				this.context.setLineDash([10]);
+				this.context.lineWidth = "2";
+				this.context.strokeStyle = "green";
+				this.context.moveTo(this.x - this.pipe_width/2, 0);
+				this.context.lineTo(this.x - this.pipe_width/2, this.canvasHeight - terrain_height);
+				this.context.stroke();
+
+				this.context.beginPath();
+				this.context.setLineDash([10]);
+				this.context.lineWidth = "2";
+				this.context.strokeStyle = "green";
+				this.context.moveTo(this.x + this.pipe_width/2, 0);
+				this.context.lineTo(this.x + this.pipe_width/2, this.canvasHeight - terrain_height);
+				this.context.stroke();
+			}	
 		}
 
 		if (this.x <= -this.pipe_width) {
