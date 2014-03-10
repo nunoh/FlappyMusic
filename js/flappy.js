@@ -32,9 +32,16 @@ var button_img = document.getElementById('button-img');
 var button_img_down = document.getElementById('button-img-down');
 
 sounds = [
-	'sounds/note1.mp3',
-	'sounds/note2.mp3',
-	'sounds/note3.mp3'
+	'sounds/note2n.mp3',
+	'sounds/note1n.mp3',
+	'sounds/note3n.mp3'
+
+];
+
+back_sounds = [
+	'sounds/amb1.mp3',
+	'sounds/back2.mp3'
+
 ];
 
 sounds_dfx = [
@@ -125,9 +132,11 @@ function initAudio() {
 
 	bufferLoader_dfx = new BufferLoader(context, sounds_dfx, finishedLoading);
 	bufferLoader = new BufferLoader(context, sounds, finishedLoading);
+	bufferLoader_back = new BufferLoader(context, back_sounds, finishedLoading);
 
 	bufferLoader.load();
 	bufferLoader_dfx.load();
+	bufferLoader_back.load();
 }
 
 function finishedLoading(bufferList) {
@@ -156,6 +165,14 @@ function playDFX(type) {
 	source.start(0);
 }
 
+
+function playBackSound(bufferPos) {
+	var source = context.createBufferSource();
+	source.buffer = bufferLoader_back.bufferList[bufferPos];
+	source.connect(context.destination);
+	source.start(0);
+}
+
 function soundTimer() {
 
 	// cue sound
@@ -163,6 +180,7 @@ function soundTimer() {
 		isound = Math.floor((Math.random() * sounds.length));
 		console.log("sound: " + isound);
 		playSound(isound);
+	
 	}
 
 	// game over sound
@@ -265,6 +283,7 @@ function Ground() {
 			if (beginning_length_acum >= beginning_length) {
 				beginning = false;
 				playSound(isound);
+				playBackSound(0);
 			}
 
 			beginning_length_acum += scroll_speed;
@@ -329,8 +348,8 @@ function Bird() {
 		}
 
 		// limit max height above screen
-		if (this.y <= 0) {
-			this.y = 0;
+		if (this.y <= -30) {
+			this.y = -30;
 		}
 
 		if (spacePressed) {
@@ -526,7 +545,7 @@ function detectCollision() {
 	// if bird is going out of a pipe, and hasn't died, update score
 	if (!xcollision && collision_previous) {
 		score += 1;
-		playDFX('coin');
+		// playDFX('coin');
 		// drawHorLines = true;
 	}
 
