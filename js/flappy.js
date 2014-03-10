@@ -503,8 +503,10 @@ function detectCollision() {
 	if (game.bird.x > game.line.x && game.bird.y < game.line.pipeY1 && game.bird.x < game.line.x+game.line.pipe_width ||
 		game.bird.x > game.line.x && game.bird.y > game.line.pipeY0 && game.bird.x < game.line.x+game.line.pipe_width)
 	{
-		collision=true;
+		gameOver=true;
 		drawHorLines=true;
+		// playDFX('explosion');
+		game.bird.speed=0;
 	}
 
 
