@@ -26,6 +26,7 @@ var drawHorLines = false;
 var beginning = true;
 var beginning_length = 250;
 var beginning_length_acum = 0;
+var firstSound = false;
 
 // really bad programming here! ;)
 var button_img = document.getElementById('button-img');
@@ -161,7 +162,6 @@ function soundTimer() {
 	// cue sound
 	if (started && !beginning && game.line.x == game.line.canvasWidth) {
 		isound = Math.floor((Math.random() * sounds.length));
-		isound = 0;
 		console.log("sound: " + isound);
 		playSound(isound);
 	}
@@ -258,6 +258,7 @@ function Ground() {
 
 			if (beginning_length_acum >= beginning_length) {
 				beginning = false;
+				playSound(isound);
 			}
 
 			beginning_length_acum += scroll_speed;
@@ -530,7 +531,6 @@ function detectCollision() {
 		// collision = true;
 	// }
 
-
 	if (game.bird.x > game.line.x && game.bird.y < game.line.pipeY1 && game.bird.x < game.line.x+game.line.pipe_width ||
 		game.bird.x > game.line.x && game.bird.y > game.line.pipeY0 && game.bird.x < game.line.x+game.line.pipe_width)
 	{
@@ -541,8 +541,6 @@ function detectCollision() {
 		game.bird.speed=0;
 		collision=true;
 	}
-
-
 
 	// update score if current is not colliding but previous was
 	if (!collision && collision_previous) {
