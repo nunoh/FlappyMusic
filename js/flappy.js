@@ -23,9 +23,12 @@ var max_scores = 10;
 var button_down = false;
 var drawHorLines = false;
 var beginning = true;
-var beginning_length = 250;
+var beginning_length = 300;
+var playback_start = 1;
 var beginning_length_acum = 0;
 var firstSound = false;
+var playback_source;
+var playback_playing = false;
 
 // really bad programming here! ;)
 var button_img = document.getElementById('button-img');
@@ -148,6 +151,12 @@ function playSound(bufferPos) {
 	source.buffer = bufferLoader.bufferList[bufferPos];
 	source.connect(context.destination);
 	source.start(0);
+
+	// to change volume with gain node
+	// gainNode = context.createGain();
+	// gainNode.gain.value = 0.1;
+	// source.connect(gainNode);
+	// gainNode.connect(context.destination);
 }
 
 function playDFX(type) {
@@ -167,10 +176,16 @@ function playDFX(type) {
 
 
 function playBackSound(bufferPos) {
-	var source = context.createBufferSource();
-	source.buffer = bufferLoader_back.bufferList[bufferPos];
-	source.connect(context.destination);
-	source.start(0);
+	playback_source = context.createBufferSource();
+	playback_source.buffer = bufferLoader_back.bufferList[bufferPos];
+	playback_source.loop = true;
+	// playback_source.connect(context.destination);
+
+	gainNode = context.createGain();
+	gainNode.gain.value = 0.3;
+	playback_source.connect(gainNode);
+	gainNode.connect(context.destination);
+	playback_source.start(0);
 }
 
 function soundTimer() {
@@ -180,13 +195,14 @@ function soundTimer() {
 		isound = Math.floor((Math.random() * sounds.length));
 		console.log("sound: " + isound);
 		playSound(isound);
-	
+
 	}
 
 	// game over sound
 	if (gameOver) {
 		if (!played) {
 			playDFX('power_down');
+			playback_source.stop(0);
 			played = true;
 		}
 	}
@@ -280,10 +296,15 @@ function Ground() {
 
 		if (started && beginning) {
 
+			if (beginning_length_acum >= playback_start && !playback_playing) {
+				playback_playing = true;
+				playBackSound(0);
+				// console.log("in here modafuccak!");
+			}
+
 			if (beginning_length_acum >= beginning_length) {
 				beginning = false;
 				playSound(isound);
-				playBackSound(0);
 			}
 
 			beginning_length_acum += scroll_speed;
@@ -545,7 +566,7 @@ function detectCollision() {
 	// if bird is going out of a pipe, and hasn't died, update score
 	if (!xcollision && collision_previous) {
 		score += 1;
-		// playDFX('coin');
+		playDFX('coin');
 		// drawHorLines = true;
 	}
 
