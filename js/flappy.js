@@ -427,6 +427,7 @@ function Line() {
 			this.context.lineWidth = "3";
 			this.context.strokeStyle = "green";
 			this.context.moveTo(this.x - this.pipe_width/2, 0);
+			// console.log(this.pipe_width);
 			this.context.lineTo(this.x - this.pipe_width/2, this.canvasHeight - terrain_height);
 			this.context.stroke();
 
@@ -454,22 +455,30 @@ function Line() {
 			// horizontal lines
 
 			if (drawHorLines) {
-				this.context.fillRect(this.x-this.pipe_width/2,this.pipeY1,this.x + this.pipe_width/2,this.pipeY0);
+
+				// this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+				this.context.fillStyle='green';
 
 
-				this.context.beginPath();
-				this.context.lineWidth = "1";
-				this.context.strokeStyle = "red";
-				this.context.moveTo(this.x - this.pipe_width/2, this.pipeY0);
-				this.context.lineTo(this.x + this.pipe_width/2, this.pipeY0);
-				this.context.stroke();
 
-				this.context.beginPath();
-				this.context.lineWidth = "1";
-				this.context.strokeStyle = "red";
-				this.context.moveTo(this.x - this.pipe_width/2, this.pipeY1);
-				this.context.lineTo(this.x + this.pipe_width/2, this.pipeY1);
-				this.context.stroke();
+				this.context.fillRect(this.x-this.pipe_width/2,0,this.pipe_width,this.pipeY1);
+				this.context.fillRect(this.x-this.pipe_width/2,this.pipeY0,this.pipe_width,delta_y-this.pipeY0);
+
+				// this.context.fillRect(this.x-this.pipe_width/2,delta_y,this.x+this.pipe_width/2,this.pipeY0);
+				// this.context.beginPath();
+				// this.context.lineWidth = "1";
+				// this.context.strokeStyle = "red";
+				// this.context.moveTo(this.x - this.pipe_width/2, this.pipeY0);
+				// this.context.lineTo(this.x + this.pipe_width/2, this.pipeY0);
+				// this.context.stroke();
+
+				// this.context.beginPath();
+				// this.context.lineWidth = "1";
+				// this.context.strokeStyle = "red";
+				// this.context.moveTo(this.x - this.pipe_width/2, this.pipeY1);
+				// this.context.lineTo(this.x + this.pipe_width/2, this.pipeY1);
+				// this.context.stroke();
 			}
 		}
 
@@ -507,6 +516,7 @@ function detectCollision() {
 		drawHorLines=true;
 		// playDFX('explosion');
 		game.bird.speed=0;
+		collision=true;
 	}
 
 
@@ -515,7 +525,7 @@ function detectCollision() {
 	if (!collision && collision_previous) {
 		score += 1;
 		playDFX('coin');
-		drawHorLines = false;
+		drawHorLines = true;
 	}
 
 	collision_previous = collision;
