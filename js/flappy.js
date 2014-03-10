@@ -16,7 +16,6 @@ var gameOver = false;
 var played = false;
 var collision_previous = false;
 var started = false;
-var isound = 0;
 var scoreSent = false;
 var name;
 var top_scores = [];
@@ -52,11 +51,11 @@ img_flappy     = "images/flappy2.png";
 // button_img = document.getElementById('button-img');
 
 var terrain_height = 50;
-
+var isound = Math.floor((Math.random() * sounds.length));
 var background_speed = 0.5;
 var scroll_speed = 3;
-var gravity = 2;
-var jump_modifier = 0.5;
+var gravity = 3;
+var jump_modifier = 0.25*gravity;
 
 /*============================
 =            MAIN            =
@@ -87,10 +86,10 @@ function init() {
 
 	// increase scroll speed every second
 	setInterval(function() {
-		console.log("in function");
+		// console.log("in function");
 		if (started && !beginning & !gameOver) {
 			scroll_speed += 0.1;
-			console.log(scroll_speed);
+			// console.log(scroll_speed);
 		}
 	}, 1000);
 
@@ -316,7 +315,10 @@ function Bird() {
 			this.y = this.canvasHeight - terrain_height - game.bird.height;
 			gameOver = true;
 			isJumping = false;
-			if (!scoreSent) sendScore();
+			if (!scoreSent) {
+				scoreSent = true;
+				setTimeout(function() { sendScore(); }, 500);
+			}
 		}
 
 		// limit max height above screen
@@ -630,27 +632,34 @@ window.requestAnimFrame = (function() {
 
 function sendScore() {
 
-	if (score == 0)
+	if (score == 0) {
 		return;
-
-	if (top_scores.length <= max_scores || score > top_scores[top_scores.length-1]) {
-		name = prompt("You made it to the high score list. What's your name?");
 	}
 
-	scoreSent = true;
-	$.ajax({
-		type: "POST",
-		url: "php/put_score.php",
-		data: {
-			name: name,
-			score: score,
-			date: getCurrentDate()
-		}
-	})
-	.done(function(msg) {
-		// console.log(msg);
-		setTimeout(getTopScores(), 2000);
-	});
+	if (top_scores.length < max_scores || score > top_scores[top_scores.length-1]) {
+		name = prompt("You made it to the high score list. What's your name?");
+		console.log(name);
+	}
+
+	if (name == "") {
+		console.log("not caring about high score");
+	}
+	else {
+		$.ajax({
+			type: "POST",
+			url: "php/put_score.php",
+			data: {
+				name: name,
+				score: score,
+				date: getCurrentDate()
+			}
+		})
+		.done(function(msg) {
+			// console.log(msg);
+			setTimeout(function() { getTopScores(); }, 500);
+			name = null;
+		});
+	}
 }
 
 function getTopScores() {
@@ -668,12 +677,12 @@ function getTopScores() {
 			var ul = document.createElement('ul');
 			for (i = 0; i < lines.length; i++) {
 				elems = lines[i].split(" | ");
-				name = elems[0];
+				dname = elems[0];
 				dscore = elems[1];
 				date = elems[2];
 				item = document.createElement('li');
 				textstr = "<span class=\"rank\">" + (i+1) + ".</span>";
-				textstr += " <span class=\"name\">" + name + "</span>";
+				textstr += " <span class=\"name\">" + dname + "</span>";
 				textstr += " <span class=\"score\">(" + dscore + ")</span>";
 				textstr += " <span class=\"date\">" + date + "</span>";
 				item.innerHTML = textstr;
@@ -708,6 +717,18 @@ function getCurrentDate() {
 
 	if( mm < 10) {
 	    mm = '0' + mm;
+	}
+
+	if( hours < 10) {
+	    hours = '0' + hours;
+	}
+
+	if( minutes < 10) {
+	    minutes = '0' + minutes;
+	}
+
+	if( seconds < 10) {
+	    seconds = '0' + seconds;
 	}
 
 	date = mm + '/' + dd + '/' + yyyy + ' ' + hours + ':' + minutes + ':' + seconds;
