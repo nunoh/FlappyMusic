@@ -31,8 +31,8 @@ var button_img_down = document.getElementById('button-img-down');
 
 sounds = [
 	'sounds/note1.mp3',
-	'sounds/note2.mp3'
-	// 'sounds/note3.mp3'
+	'sounds/note2.mp3',
+	'sounds/note3.mp3'
 ];
 
 sounds_dfx = [
@@ -257,7 +257,7 @@ function Bird() {
 
 	this.gravity = gravity;
 	isJumping = false;
-	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0].map(function(x) { return x * jump_modifier; });;
+	jump = [5, 10, 15, 20, 15, 10, 5, 3, 2, 1, 0].map(function(x) { return x * jump_modifier; });
 	ijump = 0;
 
 	this.draw = function() {
@@ -454,6 +454,9 @@ function Line() {
 			// horizontal lines
 
 			if (drawHorLines) {
+				this.context.fillRect(this.x-this.pipe_width/2,this.pipeY1,this.x + this.pipe_width/2,this.pipeY0);
+
+
 				this.context.beginPath();
 				this.context.lineWidth = "1";
 				this.context.strokeStyle = "red";
@@ -482,11 +485,11 @@ function detectCollision() {
 
 	collision = false;
 
-	if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
-		game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-		collision = true;
-		drawHorLines = true;
-	}
+	// if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
+	// 	game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
+	// 	collision = true;
+	// 	drawHorLines = true;
+	// }
 
 	// if (game.bird.x + game.bird.width >= game.line.x && game.bird.x <= game.line.x + game.line.pipe_width)
 		// console.log("aligned with pipe");
@@ -496,6 +499,16 @@ function detectCollision() {
 		// collision = true;
 	// }
 
+
+	if (game.bird.x > game.line.x && game.bird.y < game.line.pipeY1 && game.bird.x < game.line.x+game.line.pipe_width ||
+		game.bird.x > game.line.x && game.bird.y > game.line.pipeY0 && game.bird.x < game.line.x+game.line.pipe_width)
+	{
+		collision=true;
+		drawHorLines=true;
+	}
+
+
+
 	// update score if current is not colliding but previous was
 	if (!collision && collision_previous) {
 		score += 1;
@@ -504,6 +517,8 @@ function detectCollision() {
 	}
 
 	collision_previous = collision;
+	// console.log(collision);
+
 }
 
 Background.prototype = new Drawable();
