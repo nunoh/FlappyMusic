@@ -23,7 +23,9 @@ var top_scores = [];
 var max_scores = 10;
 var button_down = false;
 var drawHorLines = false;
-// var flappy_initial_y =
+var beginning = true;
+var beginning_length = 250;
+var beginning_length_acum = 0;
 
 // really bad programming here! ;)
 var button_img = document.getElementById('button-img');
@@ -51,7 +53,7 @@ img_flappy     = "images/flappy2.png";
 var terrain_height = 50;
 
 var background_speed = 0.5;
-var scroll_speed = 2.5;
+var scroll_speed = 3;
 var gravity = 2;
 var jump_modifier = 0.5;
 
@@ -75,10 +77,21 @@ document.addEventListener('touchend', function (e) {
 
 
 function init() {
-	if (game.init())
+	if (game.init()) {
 		initAudio();
 		game.start();
+	}
+
 	getTopScores();
+
+	// increase scroll speed every second
+	setInterval(function() {
+		console.log("in function");
+		if (started && !beginning & !gameOver) {
+			scroll_speed += 0.1;
+			console.log(scroll_speed);
+		}
+	}, 1000);
 
 	var canvas = document.getElementById('ui');
 	var context = canvas.getContext('2d');
@@ -146,14 +159,15 @@ function playDFX(type) {
 function soundTimer() {
 
 	// cue sound
-	if (started && game.line.x == game.line.canvasWidth) {
+	if (started && !beginning && game.line.x == game.line.canvasWidth) {
 		isound = Math.floor((Math.random() * sounds.length));
+		isound = 0;
 		console.log("sound: " + isound);
 		playSound(isound);
 	}
 
 	// game over sound
-	if (game.bird.y >= game.bgCanvas.height - terrain_height - game.bird.height) {
+	if (gameOver) {
 		if (!played) {
 			playDFX('power_down');
 			played = true;
@@ -217,13 +231,10 @@ function Drawable() {
 
 function Background() {
 
-	// scrolling speed
-	this.speed = background_speed;
-
 	this.draw = function() {
 
 		// Pan background
-		this.x -= this.speed;
+		this.x -= background_speed;
 
 		// this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
 
@@ -239,11 +250,20 @@ function Background() {
 
 function Ground() {
 
-	this.speed = scroll_speed;
-
 	this.draw = function() {
 
-		this.x -= this.speed;
+		this.x -= scroll_speed;
+
+		if (started && beginning) {
+
+			if (beginning_length_acum >= beginning_length) {
+				beginning = false;
+			}
+
+			beginning_length_acum += scroll_speed;
+			// console.log(beginning_length_acum);
+		}
+
 		this.context.drawImage(imageRepository.terrain, this.x, this.y);
 		this.context.drawImage(imageRepository.terrain, this.x + this.canvasWidth, this.y);
 
@@ -294,6 +314,7 @@ function Bird() {
 		if (this.y >= this.canvasHeight - terrain_height - game.bird.height) {
 			this.y = this.canvasHeight - terrain_height - game.bird.height;
 			gameOver = true;
+			isJumping = false;
 			if (!scoreSent) sendScore();
 		}
 
@@ -351,10 +372,12 @@ function UI() {
 			game.uiContext.shadowOffsetY = 2;
 			game.uiContext.fillText("Game Over", 300, 130);
 			// gameOver = false;
-			game.background.speed = 0;
-			game.line.speed = 0;
-			game.terrain.speed = 0;
-			game.bird.speed = 0;
+			// game.background.speed = 0;
+			// game.line.speed = 0;
+			// game.terrain.speed = 0;
+			// game.bird.speed = 0;
+			scroll_speed = 0;
+			background_speed = 0;
 
 			game.uiContext.fillStyle = "white";
 			game.uiContext.font = "60px flappy-font";
@@ -407,18 +430,17 @@ function UI() {
 
 function Line() {
 
-	this.speed = scroll_speed;
 	this.pipe_width = 50;
 
 	this.draw = function() {
 
 		if (started) {
 
-			this.x -= this.speed;
+			if (beginning) {
+				return;
+			}
 
-			// this.context.globalAlpha = 0.5;
-
-			// this.context.clearRect(this.x, this.y, 6, this.canvasHeight);
+			this.x -= scroll_speed;
 
 			this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
@@ -503,7 +525,8 @@ function detectCollision() {
 	if (game.bird.x > game.line.x && game.bird.y < game.line.pipeY1 && game.bird.x < game.line.x+game.line.pipe_width ||
 		game.bird.x > game.line.x && game.bird.y > game.line.pipeY0 && game.bird.x < game.line.x+game.line.pipe_width)
 	{
-		gameOver=true;
+		gameOver = true;
+		isJumping = false;
 		drawHorLines=true;
 		// playDFX('explosion');
 		game.bird.speed=0;
