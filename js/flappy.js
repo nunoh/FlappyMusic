@@ -432,6 +432,7 @@ function UI() {
 function Line() {
 
 	this.pipe_width = 50;
+	this.width = 3;
 
 	this.draw = function() {
 
@@ -481,10 +482,7 @@ function Line() {
 
 				// this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-				this.context.fillStyle='green';
-
-
-
+				this.context.fillStyle = 'green';
 				this.context.fillRect(this.x-this.pipe_width/2,0,this.pipe_width,this.pipeY1);
 				this.context.fillRect(this.x-this.pipe_width/2,this.pipeY0,this.pipe_width,delta_y-this.pipeY0);
 
@@ -515,43 +513,43 @@ function Line() {
 
 function detectCollision() {
 
-	collision = false;
-
-	// if (game.bird.x < game.line.x + game.line.width  && game.bird.x + game.bird.width  > game.line.x &&
-	// 	game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-	// 	collision = true;
-	// 	drawHorLines = true;
-	// }
-
-	// if (game.bird.x + game.bird.width >= game.line.x && game.bird.x <= game.line.x + game.line.pipe_width)
-		// console.log("aligned with pipe");
-
-	// if (game.bird.x < game.line.x + game.line.pipe_width  && game.bird.x + game.bird.width  > game.line.x &&
-		// game.bird.y < game.line.y + game.line.height && game.bird.y + game.bird.height > game.line.y) {
-		// collision = true;
-	// }
-
-	if (game.bird.x > game.line.x && game.bird.y < game.line.pipeY1 && game.bird.x < game.line.x+game.line.pipe_width ||
-		game.bird.x > game.line.x && game.bird.y > game.line.pipeY0 && game.bird.x < game.line.x+game.line.pipe_width)
-	{
-		gameOver = true;
-		isJumping = false;
-		drawHorLines=true;
-		// playDFX('explosion');
-		game.bird.speed=0;
-		collision=true;
-	}
-
-	// update score if current is not colliding but previous was
-	if (!collision && collision_previous) {
-		score += 1;
-		playDFX('coin');
+	// draw pipe rectangles when bird passes first x of pipe
+	if (game.bird.x >= game.line.x - game.line.pipe_width/2) {
 		drawHorLines = true;
 	}
 
-	collision_previous = collision;
-	// console.log(collision);
+	// stop drawing pipes when pipe goes to the x = 0
+	if (game.line.x + game.line.pipe_width/2 <= 0) {
+		drawHorLines = false;
+	}
 
+	xcollision = false;
+	// checking X colision with pipe
+	if (game.bird.x + game.bird.width >= game.line.x - game.line.pipe_width/2 - game.line.width  &&
+		game.bird.x <= game.line.x + game.line.pipe_width/2 + game.line.width) {
+		xcollision = true;
+	}
+
+	// checking X and Y collision with pipes
+	if (game.bird.x + game.bird.width > game.line.x - game.line.pipe_width/2 && game.bird.y < game.line.pipeY1 && game.bird.x < game.line.x+game.line.pipe_width ||
+		game.bird.x + game.bird.width + game.line.width > game.line.x - game.line.pipe_width/2 && game.bird.y > game.line.pipeY0 && game.bird.x < game.line.x+game.line.pipe_width)
+	{
+		gameOver = true;
+		isJumping = false;
+		drawHorLines = true;
+		game.bird.speed = 0;
+		// playDFX('explosion');
+		// collision = true;
+	}
+
+	// if bird is going out of a pipe, and hasn't died, update score
+	if (!xcollision && collision_previous) {
+		score += 1;
+		playDFX('coin');
+		// drawHorLines = true;
+	}
+
+	collision_previous = xcollision;
 }
 
 Background.prototype = new Drawable();
