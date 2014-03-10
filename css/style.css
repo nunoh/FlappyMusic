@@ -30,18 +30,20 @@ canvas {
 	margin-left: 360px;
 	margin-top: 38px;
 	border-radius: 3px;
+	display: inline;
 }
 
 
 #container {
 	display: inline-block;
-	width: 800px;
+	width: 100%;
 	margin: 0 auto;
+	text-align: center;
 }
 
 #iphone-frame {
 	width: 840px;
-	display: block;
+	display: inline;
 	position: absolute;
 	z-index: -1;
 }
