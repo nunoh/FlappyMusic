@@ -277,17 +277,22 @@ function finishedLoading(bufferList) {
 }
 
 function playSound(bufferPos) {
+
 	var source = context.createBufferSource();
 	source.buffer = bufferLoader.bufferList[bufferPos];
-	source.connect(context.destination);
-	// console.log(bufferPos);
-	source.start(0);
 
-	// to change volume with gain node
-	// gainNode = context.createGain();
-	// gainNode.gain.value = 0.1;
-	// source.connect(gainNode);
-	// gainNode.connect(context.destination);
+	if (game_mode == "normal") {
+		source.connect(context.destination);
+		source.start(0);
+	}
+
+	else {
+		gainNode = context.createGain();
+		gainNode.gain.value = 10.0;
+		source.connect(gainNode);
+		gainNode.connect(context.destination);
+		source.start(0);
+	}
 }
 
 function playDFX(type) {
@@ -301,7 +306,15 @@ function playDFX(type) {
 		pos = 3;
 	var source = context.createBufferSource();
 	source.buffer = bufferLoader_dfx.bufferList[pos];
-	source.connect(context.destination);
+
+	// non-gain version
+	// source.connect(context.destination);
+	// source.start(0);
+
+	gainNode = context.createGain();
+	gainNode.gain.value = 0.5;
+	source.connect(gainNode);
+	gainNode.connect(context.destination);
 	source.start(0);
 }
 
@@ -313,7 +326,7 @@ function playBackSound(bufferPos) {
 	// playback_source.connect(context.destination);
 
 	gainNode = context.createGain();
-	gainNode.gain.value = 0.3;
+	gainNode.gain.value = 0.25;
 	playback_source.connect(gainNode);
 	gainNode.connect(context.destination);
 	playback_source.start(0);

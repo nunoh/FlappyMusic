@@ -1,7 +1,9 @@
 html {
 	cursor: auto;
 	/*font-family: flappy-font;*/
-	font-family: 'Gafata', sans-serif;
+	/*font-family: 'Gafata', sans-serif;*/
+	font-family: 'Tahoma', sans-serif;
+	font-size: 13px;
 	/*background-image:url('images/bg.jpg');*/
 	/*background-color: rgb(95, 160, 208);*/
 	/*53	127	212	*/
@@ -113,7 +115,7 @@ ul {
 }
 
 #instructions {
-	font-size: 16px;
+	font-size: 14px;
 	position: absolute;
 	top: 550px;
 	width: 800px;
