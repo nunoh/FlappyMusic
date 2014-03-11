@@ -33,20 +33,17 @@ var playback_playing = false;
 var button_img = document.getElementById('button-img');
 var button_img_down = document.getElementById('button-img-down');
 
-var loadfromfs = false;
-
+var loadfromfs = true;
 
 sounds = [
 	'sounds/note2n.mp3',
 	'sounds/note1n.mp3',
 	'sounds/note3n.mp3'
-
 ];
 
 back_sounds = [
 	'sounds/amb1.mp3',
 	'sounds/backminor.mp3'
-
 ];
 
 sounds_dfx = [
@@ -55,8 +52,6 @@ sounds_dfx = [
 	'sounds/power_up.wav',
 	'sounds/power_down.wav'
 ];
-
-
 
 img_background = "images/background_flat.png";
 img_terrain    = "images/terrain.png";
@@ -91,13 +86,28 @@ document.addEventListener('touchend', function (e) {
 
 
 function init() {
-	if (game.init()) {
+	if ( game.init() ) {
+		// read cookie
+		// console.log("reading cookig sounds freesound");
+		if (loadfromfs) {
+			sounds_cookie = $.cookie('sounds_freesound');
+			// console.log(sounds_cookie);
+			if (sounds_cookie) {
+				tokens = sounds_cookie.split(",");
+				// console.log(tokens);
+				sounds = [ tokens[0], tokens[1], tokens[2] ];
+				// console.log("loading cookie value to game");
+			}
+		}
+		else {
+			// console.log("not loading cookie");
+		}
 		if (loadfromfs) {
 			loadFreesound();
 			(function() {
 				setTimeout(check, 0);
 				function check() {
-					if (sounds.length<3) {	setTimeout(check, 250);	return;	}
+					if (sounds.length > 3) { setTimeout(check, 250); return; }
 					initAudio();
 				}
 
@@ -142,14 +152,15 @@ function init() {
 =============================*/
 
 function loadFreesound(){
-	sounds.length=0;
+
+	sounds.length = 0;
 
 	pitch1json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:220&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
 
     pitch1json=$.parseJSON(pitch1json.responseText);
     pitch1url=pitch1json.sounds[0]["preview-hq-mp3"];
     sounds.push(pitch1url);
-    console.log(pitch1url);
+    // console.log(pitch1url);
 
 });
 	pitch2json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:500&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
@@ -157,30 +168,21 @@ function loadFreesound(){
     pitch2json=$.parseJSON(pitch2json.responseText);
     pitch2url=pitch2json.sounds[0]["preview-hq-mp3"];
     sounds.push(pitch2url);
-    console.log(pitch2url);
+    // console.log(pitch2url);
     });
-
-
-
 
 	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:800&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
 
     pitch3json=$.parseJSON(pitch3json.responseText);
     pitch3url=pitch3json.sounds[0]["preview-hq-mp3"];
     sounds.push(pitch3url);
-    console.log(pitch3url);
+    // console.log(pitch3url);
 
 	});
 
     // sounds = [pitch1url,pitch2url,pitch3url];
 
-
-
-
-
-
 }
-
 
 function initAudio() {
 
@@ -204,6 +206,7 @@ function playSound(bufferPos) {
 	var source = context.createBufferSource();
 	source.buffer = bufferLoader.bufferList[bufferPos];
 	source.connect(context.destination);
+	console.log(bufferPos);
 	source.start(0);
 
 	// to change volume with gain node
@@ -264,8 +267,14 @@ function soundTimer() {
 	if (gameOver) {
 		if (!played) {
 			playDFX('power_down');
-			playback_source.stop(0);
-			played = true;
+			try {
+				playback_source.stop(0);
+				played = true;
+			}
+			catch (InvalidStateError) {
+				alert("Sorry some error occured. Please refresh the page");
+				location.reload();
+			}
 		}
 	}
 }
@@ -753,7 +762,7 @@ function sendScore() {
 
 	if (top_scores.length < max_scores || score > top_scores[top_scores.length-1]) {
 		name = prompt("You made it to the high score list. What's your name?");
-		console.log(name);
+		// console.log(name);
 	}
 
 	if (name == "null" || name == "") {
@@ -862,7 +871,10 @@ function getMousePos(canvas, evt) {
 }
 
 function reset() {
-	console.log("resetting...");
+	// console.log("resetting...");
+	// console.log("storing cookie");
+	// store cookie
+	$.cookie('sounds_freesound', [ sounds[0], sounds[1], sounds[2] ] );
 	location.reload();
 	// gameOver = false;
 	// started = false;
