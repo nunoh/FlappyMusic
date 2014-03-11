@@ -98,6 +98,13 @@ $( "#ezbutton" ).click(function() {
 	location.reload();
 });
 
+$( "#delcookie" ).click(function() {
+	$.removeCookie('sounds_freesound');
+	console.log("deleting cookies");
+	location.reload();
+});
+
+
 function init() {
 
 	if ( game.init() ) {
@@ -105,13 +112,15 @@ function init() {
 		// check current game mode
 		cookie_game_mode = $.cookie("game_mode");
 		if (cookie_game_mode == "freesound") {
-			// sounds = null;
 			game_mode = cookie_game_mode;
 			loadfromfs = true;
+			$("#fsbutton").prop("disabled", true);
 		}
 		else if (cookie_game_mode == "normal") {
 			game_mode = cookie_game_mode;
 			loadfromfs = false;
+			$("#ezbutton").prop("disabled", true);
+			$("#delcookie").prop("disabled", true);
 		}
 		else {
 			// just to be safe

@@ -131,6 +131,7 @@ h3 {
 	top: 530px;
 	left: 310px;
 	height: 20px;
+	disabled:;
 	/*border: 1px solid green;*/
 }
 
@@ -138,6 +139,14 @@ h3 {
 	position: absolute;
 	top: 530px;
 	left: 210px;
+	height: 20px;
+	/*border: 1px solid red;*/
+}
+
+#delcookie {
+	position: absolute;
+	top: 530px;
+	left: 420px;
 	height: 20px;
 	/*border: 1px solid red;*/
 }
