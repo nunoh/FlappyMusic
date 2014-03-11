@@ -6,7 +6,9 @@
 
 		<link rel="stylesheet" href="css/style.css">
 		<link rel="icon" type="image/png" href="images/icon.png">
+		<link href='http://fonts.googleapis.com/css?family=Gafata' rel='stylesheet' type='text/css'>
 		<script src="js/jquery-2.1.0.min.js"></script>
+		<script src="js/jquery.cookie.js"></script>
 
 	</head>
 
@@ -14,22 +16,38 @@
 
 		<div id="container">
 
-			<img id="button-img" src="images/button.png" alt="" style="display: none;">
-			<img id="button-img-down" src="images/button_down.png" alt="" style="display: none;">
-			<img id="tap-img" src="images/tap.png" alt="" style="display: none;">
+			<h1>Flappy Music</h1>
 
-			<canvas id="background" width="600" height="360">
-				Your browser does not support canvas. Please try again with a different browser.
-			</canvas>
-			<canvas id="line" width="600" height="360"></canvas>
-			<canvas id="bird" width="600" height="360"></canvas>
-			<canvas id="ui" width="600" height="360"></canvas>
+			<div id="left">
+				<canvas id="background" width="600" height="360">
+					Your browser does not support canvas. Please try again with a different browser.
+				</canvas>
+				<canvas id="line" width="600" height="360"></canvas>
+				<canvas id="bird" width="600" height="360"></canvas>
+				<canvas id="ui" width="600" height="360"></canvas>
+			</div>
+
+			<div id="right">
+				<h3>High Scores</h3>
+				<div id="scores">
+					Loading top high scores...
+					</div>
+			</div>
+
+			<div id="instructions">
+				<p>INSTRUCTIONS</p>
+
+				<!-- <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas assumenda blanditiis inventore quaerat in cum voluptates aperiam autem laborum! Deserunt possimus non illo accusantium cumque ullam qui vitae perferendis quo.</p> -->
+				<p>Using the space bar or clicking the game screen, try to make Flappy not hit the pipes and get the highest score possible. <b><u>You have to use the musical cues</b></u> in order to be able to know where the gap is going to be. Good luck!</p>
+			</div>
+
 		</div>
 
-		<h1>High Scores</h1>
-		<div id="scores">
-			Loading top high scores...
-		</div>
+		<!-- references to images that are loaded into the canvas from the javascript -->
+		<img id="button-img" src="images/button.png" alt="" style="display: none;">
+		<img id="button-img-down" src="images/button_down.png" alt="" style="display: none;">
+		<img id="tap-img" src="images/tap.png" alt="" style="display: none;">
+		<img id="bird-jump-img" src="images/flappy2.png" alt="" style="display: none;">
 
 		<script src="js/buffer-loader.js"></script>
 		<script src="js/flappy.js"></script>
