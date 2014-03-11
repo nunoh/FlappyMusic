@@ -144,41 +144,51 @@ function init() {
 function loadFreesound(){
 	sounds.length=0;
 
-	pitch1json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:220&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+	pitch1json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[100 TO 200]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+		pitch1json=$.parseJSON(pitch1json.responseText);
+		soundnumber=Math.floor((Math.random() * pitch1json.num_results));
 
-    pitch1json=$.parseJSON(pitch1json.responseText);
-    pitch1url=pitch1json.sounds[0]["preview-hq-mp3"];
-    sounds.push(pitch1url);
-    console.log(pitch1url);
+		while (pitch1json.sounds[soundnumber].duration>2){
+			console.log(pitch1json.sounds[soundnumber].duration);
+			soundnumber=Math.floor((Math.random() * pitch1json.num_results));
+		}
 
-});
-	pitch2json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:500&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
-
-    pitch2json=$.parseJSON(pitch2json.responseText);
-    pitch2url=pitch2json.sounds[0]["preview-hq-mp3"];
-    sounds.push(pitch2url);
-    console.log(pitch2url);
-    });
-
-	
-
-
-	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:800&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
-
-    pitch3json=$.parseJSON(pitch3json.responseText);
-    pitch3url=pitch3json.sounds[0]["preview-hq-mp3"];
-    sounds.push(pitch3url);
-    console.log(pitch3url);
+		pitch1url=pitch1json.sounds[soundnumber]["preview-hq-mp3"];
+		sounds.push(pitch1url);
+		console.log(pitch1url);
 
 	});
 
-    // sounds = [pitch1url,pitch2url,pitch3url];
+	pitch2json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[100 TO 200]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+		pitch2json=$.parseJSON(pitch2json.responseText);
+		soundnumber=Math.floor((Math.random() * pitch2json.num_results));
 
-	
+		while (pitch2json.sounds[soundnumber].duration>2){
+			console.log(pitch2json.sounds[soundnumber].duration);
+			soundnumber=Math.floor((Math.random() * pitch2json.num_results));
+		}
+
+		pitch2url=pitch2json.sounds[soundnumber]["preview-hq-mp3"];
+		sounds.push(pitch2url);
+		console.log(pitch2url);
+
+	});
 
 
+	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[100 TO 200]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+		pitch3json=$.parseJSON(pitch3json.responseText);
+		soundnumber=Math.floor((Math.random() * pitch3json.num_results));
 
+		while (pitch3json.sounds[soundnumber].duration>2){
+			console.log(pitch3json.sounds[soundnumber].duration);
+			soundnumber=Math.floor((Math.random() * pitch3json.num_results));
+		}
 
+		pitch3url=pitch3json.sounds[soundnumber]["preview-hq-mp3"];
+		sounds.push(pitch3url);
+		console.log(pitch3url);
+
+	});
 }
 
 
