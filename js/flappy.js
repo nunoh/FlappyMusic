@@ -43,7 +43,7 @@ sounds = [
 
 back_sounds = [
 	'sounds/amb1.mp3',
-	'sounds/back2.mp3'
+	'sounds/backminor.mp3'
 
 ];
 
@@ -53,6 +53,8 @@ sounds_dfx = [
 	'sounds/power_up.wav',
 	'sounds/power_down.wav'
 ];
+
+
 
 img_background = "images/background_flat.png";
 img_terrain    = "images/terrain.png";
@@ -121,7 +123,6 @@ function init() {
 			}
 		}
 	}, false);
-
 }
 
 /*=============================
@@ -198,6 +199,14 @@ function soundTimer() {
 
 	}
 
+	if (score>=2){
+
+		// playback_source.stop(0);
+
+		// playBackSound(2);
+		// console.log('Stage 2');
+
+	}
 	// game over sound
 	if (gameOver) {
 		if (!played) {
@@ -298,7 +307,11 @@ function Ground() {
 
 			if (beginning_length_acum >= playback_start && !playback_playing) {
 				playback_playing = true;
+
 				playBackSound(0);
+				
+					
+				
 				// console.log("in here modafuccak!");
 			}
 
@@ -477,7 +490,6 @@ function UI() {
 	};
 }
 
-
 function Line() {
 
 	this.pipe_width = 50;
@@ -501,8 +513,11 @@ function Line() {
 			if (drawHorLines) {
 
 				this.context.fillStyle = 'green';
+				this.context.fillRect(this.x-this.pipe_width/2,0,this.pipe_width,10);
+
 				this.context.fillRect(this.x-this.pipe_width/2,0,this.pipe_width,this.pipeY1);
 				this.context.fillRect(this.x-this.pipe_width/2,this.pipeY0,this.pipe_width,delta_y-this.pipeY0);
+
 			}
 			else{
 
