@@ -34,6 +34,7 @@ var button_img = document.getElementById('button-img');
 var button_img_down = document.getElementById('button-img-down');
 
 var loadfromfs = true;
+var cookie_saved=false;
 
 sounds = [
 	'sounds/note2n.mp3',
@@ -84,35 +85,44 @@ document.addEventListener('touchend', function (e) {
 		if (!gameOver) spacePressed = true;
 }, false);
 
+$( "#fsbutton" ).click(function() {
+  loadFreesound();
+});
 
 function init() {
 	if ( game.init() ) {
 		// read cookie
 		// console.log("reading cookig sounds freesound");
-		if (loadfromfs) {
+		if (loadfromfs) {   						//THIS NEXT 2 IFS ARE AWFUL PLEASE CHANGE
 			sounds_cookie = $.cookie('sounds_freesound');
+			console.log(cookie_saved);
 			// console.log(sounds_cookie);
 			if (sounds_cookie) {
 				tokens = sounds_cookie.split(",");
-				// console.log(tokens);
 				sounds = [ tokens[0], tokens[1], tokens[2] ];
 				// console.log("loading cookie value to game");
+
+
 			}
+			console.log('sounds read from cookies');
+			console.log(sounds);
 		}
 		else {
 			// console.log("not loading cookie");
 		}
-		if (loadfromfs) {
+		if (loadfromfs && cookie_saved) {
 			loadFreesound();
 			(function() {
 				setTimeout(check, 0);
 				function check() {
-					if (sounds.length > 3) { setTimeout(check, 250); return; }
+					if (sounds.length < 3) { setTimeout(check, 250); return; }
 					initAudio();
+					console.log("fetching from freesound");
+					console.log(sounds)
 				}
 
 			})();
-			initAudio();
+			// initAudio();
 		}
 		game.start();
 	}
@@ -139,6 +149,12 @@ function init() {
 				pos.y <= game.uiCanvas.height/2 + 50 + button_img.height)
 			{
 				button_down = true;
+				$.cookie('sounds_freesound', [ sounds[0], sounds[1], sounds[2] ] );
+				cookie_saved=true;
+				console.log('saving to cookie----');
+				console.log(sounds);
+
+
 			}
 			else {
 				button_down = false;
@@ -160,46 +176,48 @@ function loadFreesound(){
 		soundnumber=Math.floor((Math.random() * pitch1json.num_results));
 
 		while (pitch1json.sounds[soundnumber].duration>2){
-			console.log(pitch1json.sounds[soundnumber].duration);
+			// console.log(pitch1json.sounds[soundnumber].duration);
 			soundnumber=Math.floor((Math.random() * pitch1json.num_results));
 		}
 
 		pitch1url=pitch1json.sounds[soundnumber]["preview-hq-mp3"];
 		sounds.push(pitch1url);
-		console.log(pitch1url);
+		// console.log(pitch1url);
 
 	});
 
-	pitch2json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[100 TO 200]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+	pitch2json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[500 TO 600]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
 		pitch2json=$.parseJSON(pitch2json.responseText);
 		soundnumber=Math.floor((Math.random() * pitch2json.num_results));
 
 		while (pitch2json.sounds[soundnumber].duration>2){
-			console.log(pitch2json.sounds[soundnumber].duration);
+			// console.log(pitch2json.sounds[soundnumber].duration);
 			soundnumber=Math.floor((Math.random() * pitch2json.num_results));
 		}
 
 		pitch2url=pitch2json.sounds[soundnumber]["preview-hq-mp3"];
 		sounds.push(pitch2url);
-		console.log(pitch2url);
+		// console.log(pitch2url);
 
 	});
 
 
-	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[100 TO 200]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?f=.lowlevel.pitch.mean:[800 TO 900]&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
 		pitch3json=$.parseJSON(pitch3json.responseText);
 		soundnumber=Math.floor((Math.random() * pitch3json.num_results));
 
 		while (pitch3json.sounds[soundnumber].duration>2){
-			console.log(pitch3json.sounds[soundnumber].duration);
+			// console.log(pitch3json.sounds[soundnumber].duration);
 			soundnumber=Math.floor((Math.random() * pitch3json.num_results));
 		}
 
 		pitch3url=pitch3json.sounds[soundnumber]["preview-hq-mp3"];
 		sounds.push(pitch3url);
-		console.log(pitch3url);
+		// console.log(pitch3url);
 
 	});
+
+	cookie_saved=false;
 
 }
 
@@ -225,7 +243,7 @@ function playSound(bufferPos) {
 	var source = context.createBufferSource();
 	source.buffer = bufferLoader.bufferList[bufferPos];
 	source.connect(context.destination);
-	console.log(bufferPos);
+	// console.log(bufferPos);
 	source.start(0);
 
 	// to change volume with gain node
@@ -893,7 +911,7 @@ function reset() {
 	// console.log("resetting...");
 	// console.log("storing cookie");
 	// store cookie
-	$.cookie('sounds_freesound', [ sounds[0], sounds[1], sounds[2] ] );
+	// $.cookie('sounds_freesound', [ sounds[0], sounds[1], sounds[2] ] );
 	location.reload();
 	// gameOver = false;
 	// started = false;
