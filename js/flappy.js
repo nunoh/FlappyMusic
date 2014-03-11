@@ -126,6 +126,8 @@ function init() {
 			// just to be safe
 			// if everything fails, play normal
 			game_mode = "normal";
+			$("#ezbutton").prop("disabled", true);
+			$("#delcookie").prop("disabled", true);
 			loadfromfs = false;
 		}
 
