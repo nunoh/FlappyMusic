@@ -70,6 +70,10 @@ canvas {
 	/*float: left;*/
 }
 
+ol {
+	text-align: left;
+}
+
 #container {
 	/*border: 1px solid red;*/
 	display: inline-block;
