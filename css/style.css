@@ -126,9 +126,18 @@ h3 {
 	top: 200px;
 }
 
-button {
-position:absolute;
-top:550px;
-left:500px;
+#fsbutton {
+	position: absolute;
+	top: 530px;
+	left: 310px;
+	height: 20px;
+	/*border: 1px solid green;*/
+}
 
+#ezbutton {
+	position: absolute;
+	top: 530px;
+	left: 210px;
+	height: 20px;
+	/*border: 1px solid red;*/
 }

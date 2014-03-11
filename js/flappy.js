@@ -33,8 +33,10 @@ var playback_playing = false;
 var button_img = document.getElementById('button-img');
 var button_img_down = document.getElementById('button-img-down');
 
-var loadfromfs = true;
-var cookie_saved=false;
+var loadfromfs = false;
+var cookie_saved = false;
+
+var game_mode;
 
 sounds = [
 	'sounds/note2n.mp3',
@@ -86,47 +88,73 @@ document.addEventListener('touchend', function (e) {
 }, false);
 
 $( "#fsbutton" ).click(function() {
-  loadFreesound();
+	$.cookie("game_mode", "freesound");
+	location.reload();
+	// loadFreesound();
+});
+
+$( "#ezbutton" ).click(function() {
+	$.cookie("game_mode", "normal");
+	location.reload();
 });
 
 function init() {
+
 	if ( game.init() ) {
-		// read cookie
-		// console.log("reading cookig sounds freesound");
-		if (loadfromfs) {   						//THIS NEXT 2 IFS ARE AWFUL PLEASE CHANGE
+
+		// check current game mode
+		cookie_game_mode = $.cookie("game_mode");
+		if (cookie_game_mode == "freesound") {
+			// sounds = null;
+			game_mode = cookie_game_mode;
+			loadfromfs = true;
+		}
+		else if (cookie_game_mode == "normal") {
+			game_mode = cookie_game_mode;
+			loadfromfs = false;
+		}
+		else {
+			// just to be safe
+			// if everything fails, play normal
+			game_mode = "normal";
+			loadfromfs = false;
+		}
+
+		if (game_mode == "freesound") {
+
 			sounds_cookie = $.cookie('sounds_freesound');
-			console.log(cookie_saved);
-			// console.log(sounds_cookie);
+
+			// if it's not the first time it's being played, just use the last ones
 			if (sounds_cookie) {
+				console.log("revisited time freesound");
 				tokens = sounds_cookie.split(",");
 				sounds = [ tokens[0], tokens[1], tokens[2] ];
-				// console.log("loading cookie value to game");
-
-
 			}
+			// if not, then get the fucking sounds from Freesound
+			else {
+
+				console.log("first time freesound");
+
+				loadFreesound();
+				(function() {
+					setTimeout(check, 0);
+					function check() {
+						if (sounds.length < 3) { setTimeout(check, 250); return; }
+						initAudio();
+						console.log("fetching from freesound");
+						console.log(sounds)
+					}
+				})();
+			}
+
 			console.log('sounds read from cookies');
 			console.log(sounds);
 		}
-		else {
-			// console.log("not loading cookie");
-		}
-		if (loadfromfs && cookie_saved) {
-			loadFreesound();
-			(function() {
-				setTimeout(check, 0);
-				function check() {
-					if (sounds.length < 3) { setTimeout(check, 250); return; }
-					initAudio();
-					console.log("fetching from freesound");
-					console.log(sounds)
-				}
 
-			})();
-			// initAudio();
-		}
 		game.start();
+
+		getTopScores();
 	}
-	getTopScores();
 
 	// increase scroll speed every second
 	setInterval(function() {
@@ -149,12 +177,12 @@ function init() {
 				pos.y <= game.uiCanvas.height/2 + 50 + button_img.height)
 			{
 				button_down = true;
-				$.cookie('sounds_freesound', [ sounds[0], sounds[1], sounds[2] ] );
-				cookie_saved=true;
-				console.log('saving to cookie----');
-				console.log(sounds);
-
-
+				if (game_mode == "freesound") {
+					console.log("saving freesound samples")
+					$.cookie('sounds_freesound', [ sounds[0], sounds[1], sounds[2] ] );
+					console.log(sounds);
+					cookie_saved = true;
+					}
 			}
 			else {
 				button_down = false;
