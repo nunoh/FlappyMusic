@@ -33,7 +33,7 @@ var playback_playing = false;
 var button_img = document.getElementById('button-img');
 var button_img_down = document.getElementById('button-img-down');
 
-var loadfromfs=true;
+var loadfromfs = false;
 
 
 sounds = [
@@ -160,7 +160,7 @@ function loadFreesound(){
     console.log(pitch2url);
     });
 
-	
+
 
 
 	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:800&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
@@ -174,7 +174,7 @@ function loadFreesound(){
 
     // sounds = [pitch1url,pitch2url,pitch3url];
 
-	
+
 
 
 
@@ -362,9 +362,9 @@ function Ground() {
 				playback_playing = true;
 
 				playBackSound(0);
-				
-					
-				
+
+
+
 				// console.log("in here modafuccak!");
 			}
 
@@ -790,15 +790,15 @@ function getTopScores() {
 		lines.pop(); // since the last element always empty because of the trailing <br> tag
 		// console.log(lines.length);
 		if (lines.length != 0) {
-			var ul = document.createElement('ul');
+			var ul = document.createElement('ol');
 			for (i = 0; i < lines.length; i++) {
 				elems = lines[i].split(" | ");
 				dname = elems[0];
 				dscore = elems[1];
 				date = elems[2];
 				item = document.createElement('li');
-				textstr = "<span class=\"rank\">" + (i+1) + ".</span>";
-				textstr += " <span class=\"name\">" + dname + "</span>";
+				// textstr = "<span class=\"rank\">" + (i+1) + ".</span>";
+				textstr = " <span class=\"name\">" + dname + "</span>";
 				textstr += " <span class=\"score\">(" + dscore + ")</span>";
 				textstr += " <span class=\"date\">" + date + "</span>";
 				item.innerHTML = textstr;
