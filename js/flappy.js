@@ -29,10 +29,12 @@ var beginning_length_acum = 0;
 var firstSound = false;
 var playback_source;
 var playback_playing = false;
-
 // really bad programming here! ;)
 var button_img = document.getElementById('button-img');
 var button_img_down = document.getElementById('button-img-down');
+
+var loadfromfs=true;
+
 
 sounds = [
 	'sounds/note2n.mp3',
@@ -90,10 +92,20 @@ document.addEventListener('touchend', function (e) {
 
 function init() {
 	if (game.init()) {
-		initAudio();
+		if (loadfromfs) {
+			loadFreesound();
+			(function() {
+				setTimeout(check, 0);
+				function check() {
+					if (sounds.length<3) {	setTimeout(check, 250);	return;	}
+					initAudio();
+				}
+
+			})();
+			initAudio();
+		}
 		game.start();
 	}
-
 	getTopScores();
 
 	// increase scroll speed every second
@@ -128,6 +140,47 @@ function init() {
 /*=============================
 =            AUDIO            =
 =============================*/
+
+function loadFreesound(){
+	sounds.length=0;
+
+	pitch1json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:220&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+
+    pitch1json=$.parseJSON(pitch1json.responseText);
+    pitch1url=pitch1json.sounds[0]["preview-hq-mp3"];
+    sounds.push(pitch1url);
+    console.log(pitch1url);
+
+});
+	pitch2json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:500&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+
+    pitch2json=$.parseJSON(pitch2json.responseText);
+    pitch2url=pitch2json.sounds[0]["preview-hq-mp3"];
+    sounds.push(pitch2url);
+    console.log(pitch2url);
+    });
+
+	
+
+
+	pitch3json=$.getJSON('http://www.freesound.org/api/sounds/content_search?t=.lowlevel.pitch.mean:800&api_key=7cd88ee284674397826a9a457d5a6e1a', function() {
+
+    pitch3json=$.parseJSON(pitch3json.responseText);
+    pitch3url=pitch3json.sounds[0]["preview-hq-mp3"];
+    sounds.push(pitch3url);
+    console.log(pitch3url);
+
+	});
+
+    // sounds = [pitch1url,pitch2url,pitch3url];
+
+	
+
+
+
+
+}
+
 
 function initAudio() {
 
